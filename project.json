@@ -1,0 +1,34 @@
+{
+    "project_type":"javascript",
+    "debugMode":1,
+    "showFPS":false,
+    "frameRate":60,
+    "id":"gameCanvas",
+    "renderMode":0,
+    "engineDir":"frameworks/cocos2d-html5",
+    "modules":[
+        "cocos2d",
+        "extensions",
+        "external"
+    ],
+    "jsList":[
+        "src/Example/BaseScene.js",
+        "src/Example/Basic.js",
+        "src/Example/RollingBall.js",
+        "src/Example/PinJoint.js",
+        "src/Example/SlideJoint.js",
+        "src/Example/SpringJoint.js",
+        "src/Example/PivotJoint.js",
+        "src/Example/ContactFilter.js",
+        "src/Example/ColorMatch.js",
+        "src/Example/SimplePlatformer.js",
+        "src/Example/PointQuery.js",
+        "src/Example/HitMe.js",
+        "src/Example/PRKitDemo.js",
+        "src/Example/FruitCutNinja.js",
+        "src/Example/PhysicsLineDrawTest.js",
+        "src/IntroScene.js",
+        "src/ContentScene.js",
+        "src/Resource.js"
+    ]
+}

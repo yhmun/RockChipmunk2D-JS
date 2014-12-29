@@ -34,6 +34,11 @@ var SCR_H = 0;
 var SCR_W2 = 0;
 var SCR_H2 = 0;
 
+msw.rand = function ( )
+{
+	return parseInt ( Math.random ( ) * 0xffffff );
+};
+
 cc.game.onStart = function ( )
 {
 	cc.view.adjustViewPort ( true );

@@ -1,6 +1,6 @@
 RockChipmunk2D-JS
 =================
-- Cocos2D-JS port version.
+- Cocos2D-JS v3.2 port version.
 - Version 0.1 ( Currently working source code )
 
 # Original 

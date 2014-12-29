@@ -48,8 +48,6 @@ msw.BaseScene = cc.Scene.extend
 	{
 		this._super ( );
 		
-		this.Grab = null;
-
 		var		BG = new cc.LayerColor ( cc.color ( 128, 128, 128, 128 ) );
 		this.addChild ( BG );
 

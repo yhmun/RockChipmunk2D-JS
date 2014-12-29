@@ -1,13 +1,9 @@
 /** ----------------------------------------------------------------------------------
  *
- *      File            PRKitDemo.js
+ *      File            GLNode.js
  *      Ported By       Young-Hwan Mun
  *      Contact         yh.msw9@gmail.com
  * 
- * -----------------------------------------------------------------------------------
- *   
- *      Created By      ChildhoodAndy on 14-3-9    
- *
  * -----------------------------------------------------------------------------------
  * 
  *      Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,59 +26,31 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
-msw.PRKitDemo = cc.Scene.extend 
+cc.GLNode = cc.GLNode || cc.Node.extend
 ({
-	ctor:function ( ) 
+	ctor:function ( )
 	{
 		this._super ( );
-
-		var		BG = new cc.LayerColor ( cc.color ( 128, 128, 128, 128 ) );
-		this.addChild ( BG );
-		
-		var		Back = new cc.MenuItemImage ( "res/backNormal.png", "res/backSelected.png", this.back, this );
-		var		Restart = new cc.MenuItemImage ( "res/refreshNormal.png", "res/refreshSelected.png", this.restart, this );
-				
-		Back.setPosition ( SCR_W - 110, SCR_H - 80 );
-		Restart.setPosition ( SCR_W - 200, SCR_H - 80 );		
-		
-		var		Menu = new cc.Menu ( Back, Restart );
-		Menu.setPosition ( 0, 0 );
-		this.addChild ( Menu );		
-		
-		var		Label = new cc.LabelTTF ( this.demo_info ( ), "Helvetica", 25 );
-		Label.setAnchorPoint ( cc.p ( 0, 1.0 ) )
-		Label.setPosition ( 60, SCR_H - 60 );				
-		this.addChild ( Label );  
-
-		var		Points = 
-		[
-		  	100, 100,
-		  	100, 100,
-		  	200, 100,
-		  	300, 200,
-		  	400, 300,
-		  	500, 500
-		];
-		
-		var		Texture = cc.textureCache.addImage ( "res/PRKitDemo/pattern1.png" );
-
-		var		FilledPolygon = new cc.PRFilledPolygon ( );
-		FilledPolygon.initWithPoints ( Points, Texture );
-		this.addChild ( FilledPolygon ); 		
+		this.init ( );			
 	},
-	
-	demo_info:function ( )
+
+	init:function ( )
 	{
-		return "12 PRKit Demo";
+		this._renderCmd._needDraw = true;
+		this._renderCmd.rendering =  function ( ctx )
+		{
+			cc.kmGLMatrixMode ( cc.KM_GL_MODELVIEW );
+			cc.kmGLPushMatrix ( );
+			cc.kmGLLoadMatrix ( this._stackMatrix );
+
+			this._node.draw ( ctx );
+
+			cc.kmGLPopMatrix ( );
+		};
 	},
-	
-	back:function ( Sender )
+
+	draw:function ( ctx )
 	{
-		cc.director.runScene ( new msw.ContentScene ( ) );
-	},
-	
-	restart:function ( Sender )
-	{
-		cc.director.runScene ( new msw.PRKitDemo ( ) );
-	},		
+		this._super ( ctx );		
+	}
 });

@@ -30,13 +30,32 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
-msw.PinJoint = cc.Scene.extend 
+msw.PinJoint = msw.BaseScene.extend 
 ({
 	ctor:function ( ) 
 	{
 		this._super ( );
 
-		var		BG = new cc.LayerColor ( cc.color ( 128, 128, 128, 128 ) );
-		this.addChild ( BG );
+		var		Ball1 = this.createBall ( cc.p ( 100, 100 ), 50, PHYSICSBODY_MATERIAL_DEFAULT );
+		var		Ball2 = this.createBall ( cc.p ( 400, 100 ), 50, PHYSICSBODY_MATERIAL_DEFAULT );
+		
+		var		Box1 = this.createBox ( cc.p ( 400, 200 ), cc.size ( 100, 100 ) );
+		var		Box2 = this.createBox ( cc.p ( 600, 400 ), cc.size ( 100, 100 ) );
+		
+		this.addChild ( Ball1 );
+		this.addChild ( Ball2 );
+		
+		this.addChild ( Box1 );
+		this.addChild ( Box2 );				
 	},
+	
+	demo_info:function ( )
+	{
+		return "02 Pin Joint";
+	},
+
+	restart:function ( Sender )
+	{
+		cc.director.runScene ( new msw.PinJoint ( ) );
+	},	
 });

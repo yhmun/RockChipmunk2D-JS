@@ -35,7 +35,7 @@ msw.RollingBall = msw.BaseScene.extend
 	ctor:function ( ) 
 	{
 		this._super ( );
-		
+		/*
 		this.VertEgg = 
 		[
 		 	  1.9,  88.2,
@@ -75,6 +75,7 @@ msw.RollingBall = msw.BaseScene.extend
 			-21.2,  56.7,
 			- 2.3,  57.1,
 		];		
+		*/
 	},
 	
 	demo_info:function ( )
@@ -99,6 +100,7 @@ msw.RollingBall = msw.BaseScene.extend
 	
 	addNewSpriteAtPosition:function ( Point )
 	{
+		/*
 		var		RandIdx = msw.rand ( ) % 3;
 		var		Space   = this.Space;
 		var 	Sprite  = null;		
@@ -131,7 +133,7 @@ msw.RollingBall = msw.BaseScene.extend
 				Shape.setFriction ( 1 );
 				this.Space.addShape ( Shape );
 				
-				/*
+				
 				var		Count = this.VertCai / 2;
 				for ( var i = 0; i < Count; i++ )
 				{
@@ -140,7 +142,7 @@ msw.RollingBall = msw.BaseScene.extend
 					Shape.setFriction ( 1 );	
 					this.Space.addShape ( Shape );
 				}
-				*/
+				
 								
 				Sprite = new cc.PhysicsSprite ( "res/cai1.png" );
 				Sprite.setTag ( 1 );
@@ -165,5 +167,6 @@ msw.RollingBall = msw.BaseScene.extend
 		Sprite.setPosition ( Point );
 		Sprite.setOpacity ( 128 );
 		this.addChild ( Sprite );
+		*/
 	},
 });

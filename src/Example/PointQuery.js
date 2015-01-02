@@ -30,6 +30,22 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
+cc.Test = cc.DrawNode.extend
+({
+	ctor: function ()
+	{
+		cc.DrawNode.prototype.ctor.call(this);
+		//this.space = space;
+	},
+	
+	draw:function (context) {
+
+		cc.log ( "test" );
+		cc.DrawNode.prototype.visit.call(this);
+		
+	},	
+});
+
 msw.PointQuery = cc.Scene.extend 
 ({
 	ctor:function ( ) 
@@ -38,5 +54,11 @@ msw.PointQuery = cc.Scene.extend
 
 		var		BG = new cc.LayerColor ( cc.color ( 128, 128, 128, 128 ) );
 		this.addChild ( BG );
+		
+		this.space = new cp.Space();
+
+		var		test = new cc.Test ( this.space );
+		this.addChild ( test ); 		
 	},
 });
+

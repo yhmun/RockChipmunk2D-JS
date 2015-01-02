@@ -35,6 +35,8 @@ msw.Basic = msw.BaseScene.extend
 	ctor:function ( ) 
 	{
 		this._super ( );
+				
+		this.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
 		
 		for ( var i = 0; i < 10; i++ )
 		{
@@ -44,7 +46,7 @@ msw.Basic = msw.BaseScene.extend
 				cc.size ( 30 + cc.random0To1 ( ) * 50, 100 + cc.random0To1 ( ) * 50 ) 
 			);
 			this.addChild ( Box );
-		}
+		}	
 	},
 	
 	demo_info:function ( )

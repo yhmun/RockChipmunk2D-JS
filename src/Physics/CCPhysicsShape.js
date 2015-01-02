@@ -450,33 +450,137 @@ cc.PhysicsShape.getPolyonCenter = function ( points, count )
 };
 
 /** A circle shape */
-/*
-class CC_DLL PhysicsShapeCircle : public PhysicsShape
+cc.PhysicsShapeCircle = cc.PhysicsShape.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );		
+	},
+	
+	init:function ( radius, material, offset )
+	{
+		if ( material === undefined )	material = cc.PhysicsMaterial.clone ( cc.PHYSICSSHAPE_MATERIAL_DEFAULT );
+		if ( offset   === undefined )	offset   = cp.vzero;
+
+		cc.PhysicsShape.prototype.init.call ( this, cc.PhysicsShape.Type.CIRCLE );
+
+		var 	shape = new cp.CircleShape ( this._info.getSharedBody ( ), radius, offset );
+		if ( shape == null )
+		{
+			return false;
+		}
+		this._info.add ( shape );
+
+		this._area = this.calculateArea ( );
+		this._mass = material.density == cc.PHYSICS_INFINITY ? cc.PHYSICS_INFINITY : material.density * this._area;
+		this._moment = this.calculateDefaultMoment ( );
+
+		this.setMaterial ( material );
+
+		return true;
+	},
+		
+    calculateDefaultMoment:function ( )
+    {
+    	var 	shape = this._info.getShapes ( ) [ 0 ];
+    	return this._mass == cc.PHYSICS_INFINITY ? cc.PHYSICS_INFINITY : cp.momentForCircle ( this._mass, 0, shape.r, shape.c );
+    },
+
+    getRadius:function ( )
+    {
+    	var 	shape = this._info.getShapes ( ) [ 0 ];
+    	return shape.r;
+    },
+    
+    getOffset:function ( )
+    {
+    	var 	shape = this._info.getShapes ( ) [ 0 ];
+    	return shape.c;
+    },
+
+    calculateArea:function ( )
+    {
+    	var 	shape = this._info.getShapes ( ) [ 0 ];    	
+    	return cp.areaForCircle ( 0, shape.r );
+    },
+    
+    setScale:function ( scale, scaleY )
+    {		
+    	if ( scaleY === undefined )
+    	{
+    		if ( this._scaleX == scale )
+    		{
+    			return;
+    		}
+    		
+    		this._newScaleX = this._newScaleY = scale;
+    		this._dirty = true;
+    	}
+    	else 
+    	{
+    		if ( scale != scaleY )
+    		{
+    			cc.log ( "PhysicsShapeCircle WARNING: CANNOT support setScale with different x and y" );
+    		}
+    		
+    		if ( this._scaleX == scale )
+    		{
+    			return;
+    		}    		
+    		
+    		this._newScaleX = this._newScaleY = scale;
+    		this._dirty = true;
+    	}	 
+    },
+
+    setScaleX:function ( scale )
+    {
+    	cc.log ( "PhysicsShapeCircle WARNING: CANNOT support setScaleX" );
+
+    	this.setScale ( scale );
+    },
+
+    setScaleY:function ( scale )
+    {
+    	cc.log ( "PhysicsShapeCircle WARNING: CANNOT support setScaleY" );
+
+    	this.setScale ( scale );	
+    },
+
+    update:function ( delta )
+    {
+    	if ( this._dirty )
+    	{
+    		var 	factor = Math.abs ( this._newScaleX / this._scaleX );
+    		var 	shape = this._info.getShapes ( ) [ 0 ];
+    		var 	v = shape.c;
+    		v = cp.v.mult ( v, factor );
+    		shape.c = v;
+    		shape.r = shape.r * factor;
+    	}
+    	
+    	cc.PhysicsShape.prototype.update.call ( this, delta );
+    },    
+});
+
+cc.PhysicsShapeCircle.calculateArea = function ( radius )
 {
-public:
-    static PhysicsShapeCircle* create(float radius, const PhysicsMaterial& material = PHYSICSSHAPE_MATERIAL_DEFAULT, const Vec2& offset = Vec2(0, 0));
-    static float calculateArea(float radius);
-    static float calculateMoment(float mass, float radius, const Vec2& offset = Vec2::ZERO);
-
-    virtual float calculateDefaultMoment() override;
-
-    float getRadius() const;
-    virtual Vec2 getOffset() override;
-
-protected:
-    bool init(float radius, const PhysicsMaterial& material = PHYSICSSHAPE_MATERIAL_DEFAULT, const Vec2& offset = Vec2::ZERO);
-    virtual float calculateArea() override;
-    virtual void setScale(float scale) override;
-    virtual void setScale(float scaleX, float scaleY) override;
-    virtual void setScaleX(float scale) override;
-    virtual void setScaleY(float scale) override;
-    virtual void update(float delta) override;
-
-protected:
-    PhysicsShapeCircle();
-    virtual ~PhysicsShapeCircle();
+	return cp.areaForCircle ( 0, radius );
 };
- */
+
+cc.PhysicsShapeCircle.calculateMoment = function ( mass, radius, offset )
+{
+	if ( offset === undefined )		offset = cp.vzero;
+	
+	return mass == cc.PHYSICS_INFINITY ? cc.PHYSICS_INFINITY : cp.momentForCircle ( mass, 0, radius, offset );
+};
+
+cc.PhysicsShapeCircle.create = function ( radius, material, offset )
+{	
+	var		Shape = new cc.PhysicsShapeCircle ( );
+	Shape.init ( radius, material, offset );
+	return Shape;
+};
 
 /** A polygon shape */
 cc.PhysicsShapePolygon = cc.PhysicsShape.extend
@@ -489,7 +593,7 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 	init:function ( points, material, offset )
 	{		
 		if ( material === undefined )	material = cc.PhysicsMaterial.clone ( cc.PHYSICSSHAPE_MATERIAL_DEFAULT );
-		if ( border   === undefined )	border   = 1;
+		if ( offset   === undefined )	offset   = cp.vzero;
 
 		cc.PhysicsShape.prototype.init.call ( this, cc.PhysicsShape.Type.POLYGEN );
 		
@@ -511,22 +615,19 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 	
 	calculateDefaultMoment:function ( )
 	{
-		var		shapes = this._info.getShapes ( );
-		var		shape = shapes [ 0 ];		
+		var		shape = this._info.getShapes ( ) [ 0 ];		
 		return this._mass == cc.PHYSICS_INFINITY ? cc.PHYSICS_INFINITY : cp.momentForPoly ( this._mass, shape.verts, cp.vzero );
 	},
 
 	getPoint:function ( i ) 
 	{
-		var		shapes = this._info.getShapes ( );
-		var		shape = shapes [ 0 ];			
+		var		shape = this._info.getShapes ( ) [ 0 ];			
 		return shape.verts [ i ];
 	},
 	
 	getPoints:function ( outPoints ) 
 	{
-		var		shapes = this._info.getShapes ( );
-		var		shape = shapes [ 0 ];			
+		var		shape = this._info.getShapes ( ) [ 0 ];			
 		for ( var i in shape.verts )
 		{
 			outPoints [ i ] = shape.verts [ i ];
@@ -535,22 +636,19 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 	
 	getPointsCount:function ( ) 
 	{
-		var		shapes = this._info.getShapes ( );
-		var		shape = shapes [ 0 ];	
+		var		shape = this._info.getShapes ( ) [ 0 ];	
 		return shape.verts.length;
 	},
 	
 	getCenter:function ( ) 
 	{
-		var		shapes = this._info.getShapes ( );
-		var		shape = shapes [ 0 ];			
+		var		shape = this._info.getShapes ( ) [ 0 ];			
 		return cp.centroidForPoly ( shape.verts );
 	},
 	
 	calculateArea:function ( ) 
 	{
-		var		shapes = this._info.getShapes ( );
-		var		shape = shapes [ 0 ];
+		var		shape = this._info.getShapes ( ) [ 0 ];
 		return cp.areaForPoly ( shape.verts );			
 	},
 	
@@ -561,8 +659,7 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 			var 	factorX = this._newScaleX / this._scaleX;
 			var 	factorY = this._newScaleY / this._scaleY;
 
-			var		shapes = this._info.getShapes ( );
-			var		shape  = shapes [ 0 ];
+			var		shape  = this._info.getShapes ( ) [ 0 ];
 			var		count  = shape.verts.length;
 			var		count2 = count / 2;
 			var		verts  = shape.verts;
@@ -713,10 +810,16 @@ cc.PhysicsShapeEdgePolygon = cc.PhysicsShape.extend
 
 		cc.PhysicsShape.prototype.init.call ( this, cc.PhysicsShape.Type.EDGEPOLYGEN );		
 
-		var		count = points.length;
+		var		verts = new Array ( );
+		for ( var i = 0; i < points.length; i += 2 )
+		{
+			verts.push ( cp.v ( points [ i ], points [ i + 1 ] ) );			
+		}
+		
+		var		count = verts.length;
 		for ( var i = 0; i < count; ++i )
 		{
-			var 	shape = new cp.SegmentShape ( this._info.getSharedBody ( ), points [ i ], points [ ( i + 1 ) % count ], border );
+			var 	shape = new cp.SegmentShape ( this._info.getSharedBody ( ), verts [ i ], verts [ ( i + 1 ) % count ], border );
 			if ( shape == null )
 			{
 				return false;				
@@ -852,7 +955,7 @@ cc.PhysicsShapeEdgeBox = cc.PhysicsShapeEdgePolygon.extend
 cc.PhysicsShapeEdgeBox.create = function ( size, material, border, offset )
 {	
 	var		Shape = new cc.PhysicsShapeEdgeBox ( );
-	Shape.init ( size, material, border );
+	Shape.init ( size, material, border, offset );
 	return Shape;
 };
 

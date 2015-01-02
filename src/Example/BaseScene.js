@@ -33,26 +33,6 @@
 var GRID_SPACE = 30;
 var DRAG_BODYS_TAG = 0x80;
 
-/*
-msw.PhysicsMaterial = function ( Density, Restitution, Friction )
-{
-	this.Density 		= Density;
-	this.Restitution 	= Restitution;
-	this.Friction 		= Friction;
-};
-
-var PHYSICSBODY_MATERIAL_DEFAULT = new msw.PhysicsMaterial ( 0.1, 0.5, 0.5 );
-
-cp.Body.prototype.setUserData = function ( UserData )
-{
-	this.UserData = UserData;
-};
-
-cp.Body.prototype.getUserData = function ( )
-{
-	return this.UserData;
-};
-*/
 msw.BaseScene = cc.SceneEx.extend 
 ({
 	ctor:function ( ) 
@@ -99,12 +79,12 @@ msw.BaseScene = cc.SceneEx.extend
 
 		var		Menu = new cc.Menu ( Back, Restart, ToggleDebug );
 		Menu.setPosition ( 0, 0 );
-		this.addChild ( Menu );		
+		this.addChild ( Menu, 10 );		
 		
 		var		Label = new cc.LabelTTF ( this.demo_info ( ), "Helvetica", 25 );
 		Label.setAnchorPoint ( cc.p ( 0, 1.0 ) )
 		Label.setPosition ( 60, SCR_H - 60 );				
-		this.addChild ( Label );     
+		this.addChild ( Label, 10 );     
 		
 		this.IsTouchEnable = true;
 		this.Mouses = new Array ( );
@@ -142,75 +122,7 @@ msw.BaseScene = cc.SceneEx.extend
 		
 		this.scheduleUpdate ( );
 	},
-	/*
-	setupDebugNode:function ( )
-	{
-		this._debugNode = new cc.PhysicsDebugNode ( this.Space );
-		this._debugNode.setVisible ( true );
-		this.addChild ( this._debugNode );		
-	},
 
-	initPhysics:function ( )
-	{
-		// Space
-		var		Space = this.Space = new cp.Space ( );
-		var 	StaticBody = Space.staticBody;
-		
-		this.setupDebugNode ( );
-
-		var pos = cp.v ( 100, 500 );
-        var mass = 2;
-        var a = cp.v(0,  30);
-        var b = cp.v(0, -30);
-
-        var body = Space.addBody(new cp.Body(mass, cp.momentForSegment(mass, a, b)));
-        body.setPos(cp.v.add(pos, cp.vzero));
-
-        var shape = this.test = Space.addShape(new cp.SegmentShape(body, a, b, 5));
-        shape.setElasticity(0);
-        shape.setFriction(0.7);
-
-
-
-
-		// Wall
-		var 	Walls = 
-		[
-			 new cp.SegmentShape ( StaticBody, cp.v ( 0,     0 ), cp.v ( SCR_W,     0 ), 0 ),	// bottom
-			 new cp.SegmentShape ( StaticBody, cp.v ( 0, SCR_H ), cp.v ( SCR_W, SCR_H ), 0 ),	// top
-			 new cp.SegmentShape ( StaticBody, cp.v ( 0,     0 ), cp.v (     0, SCR_H ), 0 ),	// left
-			 new cp.SegmentShape ( StaticBody, cp.v ( SCR_W, 0 ), cp.v ( SCR_W, SCR_H ), 0 )  	// right
-		];
-
-		for ( var i = 0; i < Walls.length; i++ )
-		{
-			var 	Shape = Walls [ i ];
-			Shape.setElasticity ( 0.5 );
-			Shape.setFriction ( 0.5 );
-			Space.addStaticShape ( Shape );									
-		}
-
-		// Gravity
-		Space.gravity = cp.v ( 0, -200 );				
-		
-		this.Mouse = cp.v ( 0, 0 );
-		this.MouseBody = new cp.Body ( Infinity, Infinity );
-	},
-*/	
-	/*	
-	update:function ( Delta )
-	{
-	
-		var 	NewPoint = cp.v.lerp ( this.MouseBody.p, this.Mouse, 0.25 );
-//		this.MouseBody.v = cp.v.mult ( cp.v.sub ( NewPoint, this.MouseBody.p ), 60 );
-		this.MouseBody.p = NewPoint;
-		
-		this.Space.step ( Delta );
-		
-		 cc.log ( this.test.ta.x );
-		 
-	},
-	*/
 	demo_info:function ( )
 	{
 		return "";
@@ -249,48 +161,6 @@ msw.BaseScene = cc.SceneEx.extend
 	    }
 	    
 	    return false;
-	    
-	   // cc.log ( Shapes.length );
-	    /*
-	    PhysicsBody* body = nullptr;
-	    for(auto& obj : shapeArr)
-	    {
-	        if((obj->getBody()->getTag() & DRAG_BODYS_TAG) != 0)
-	        {
-	            body = obj->getBody();
-	            break;
-	        }
-	    }
-	    
-	    if(body != nullptr)
-	    {
-
-	        
-	        return true;
-	        
-	    }
-	    */
-	    
-		/*
-		var		Loc  = this.Mouse = Touch.getLocation ( );		
-		var		Body = null;
-				
-		this.Space.nearestPointQuery ( Loc, 0, cp.ALL_LAYERS, cp.NO_GROUP, function ( Shape, Distance, Point )
-		{
-			Body = Shape.getBody ( );			
-		});
-
-		if ( Body )
-		{
-			this.MouseJoint = new cp.PivotJoint ( this.MouseBody, Body, cp.vzero, Body.world2Local ( Loc ) );
-			this.MouseJoint.maxForce = 5000 * Body.getMass ( );
-			this.MouseJoint.errorBias = Math.pow ( 1 - 0.15, 60 );
-			this.Space.addConstraint ( this.MouseJoint );			
-			return true;
-		}
-		*/
-		
-		return false;
 	},	
 
 	onTouchMoved:function ( Touch )
@@ -306,7 +176,6 @@ msw.BaseScene = cc.SceneEx.extend
 			}
 			
 		}
-		//this.Mouse = Touch.getLocation ( );
 	},	
 
 	onTouchEnded:function ( Touch )
@@ -322,7 +191,6 @@ msw.BaseScene = cc.SceneEx.extend
 				break;				
 			}
 		}		
-		//this.Space.removeConstraint ( this.MouseJoint );	
 	},	
 	
 	back:function ( Sender )

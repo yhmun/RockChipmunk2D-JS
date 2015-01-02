@@ -35,7 +35,9 @@ msw.RollingBall = msw.BaseScene.extend
 	ctor:function ( ) 
 	{
 		this._super ( );
-		/*
+		
+		this.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+		
 		this.VertEgg = 
 		[
 		 	  1.9,  88.2,
@@ -74,8 +76,7 @@ msw.RollingBall = msw.BaseScene.extend
 			-31.7,  40.6,
 			-21.2,  56.7,
 			- 2.3,  57.1,
-		];		
-		*/
+		];				
 	},
 	
 	demo_info:function ( )
@@ -100,73 +101,33 @@ msw.RollingBall = msw.BaseScene.extend
 	
 	addNewSpriteAtPosition:function ( Point )
 	{
-		/*
 		var		RandIdx = msw.rand ( ) % 3;
-		var		Space   = this.Space;
-		var 	Sprite  = null;		
-		var 	Body 	= null; 			
-		var 	Shape 	= null; 
+		var		Sprite  = null;
+		var		Body    = null;
 		
 		switch ( RandIdx )
 		{
-			case 0 : 
-				Body = new cp.Body ( 1, cp.momentForPoly ( 1, this.VertEgg, cp.vzero ) );
-				Body.setPos ( Point );	
-				this.Space.addBody ( Body );
-				
-				Shape = new cp.PolyShape ( Body, this.VertEgg, cp.vzero );
-				Shape.setElasticity ( 1 );
-				Shape.setFriction ( 1 );
-				this.Space.addShape ( Shape );
-				
-				Sprite = new cc.PhysicsSprite ( "res/egg.png" );
-				Sprite.setTag ( 0 );
+			case 0 :
+				Sprite = new cc.SpriteEx ( "res/egg.png" );				
+				Body = cc.PhysicsBody.createPolygon ( this.VertEgg, cc.PhysicsMaterial ( 0.1, 1.5, 1 ), cp.vzero );
+				Sprite.setTag ( 0 );				
 				break;
 				
 			case 1 :
-				Body = new cp.Body ( 1, 100 );
-				Body.setPos ( Point );	
-				this.Space.addBody ( Body );
-				
-				Shape = new cp.CircleShape ( Body, 55, cp.v ( 0, 0 ) );
-				Shape.setElasticity ( 1 );
-				Shape.setFriction ( 1 );
-				this.Space.addShape ( Shape );
-				
-				
-				var		Count = this.VertCai / 2;
-				for ( var i = 0; i < Count; i++ )
-				{
-					Shape = new cp.SegmentShape ( Body, this.VertCai [ i * 2 ], this.VertCai [ ( ( i + 1 ) % Count ) * 2 + 1 ], 1 );
-					Shape.setElasticity ( 1 );
-					Shape.setFriction ( 1 );	
-					this.Space.addShape ( Shape );
-				}
-				
-								
-				Sprite = new cc.PhysicsSprite ( "res/cai1.png" );
-				Sprite.setTag ( 1 );
+	            Sprite = new cc.SpriteEx ( "res/cai1.png" );
+	            Body = cc.PhysicsBody.createEdgePolygon ( this.VertCai );
+	            Sprite.setTag ( 1 );				
 				break;
 				
 			case 2 :
-				Body = new cp.Body ( 1, cp.momentForCircle ( 1, 0, 55, cp.v ( 0, 0 ) ) );
-				Body.setPos ( Point );	
-				this.Space.addBody ( Body );
-				
-				Shape = new cp.CircleShape ( Body, 55, cp.v ( 0, 0 ) );
-				Shape.setElasticity ( 1 );
-				Shape.setFriction ( 1 );
-				this.Space.addShape ( Shape );
-				
-				Sprite = new cc.PhysicsSprite ( "res/cai2.png" );
-				Sprite.setTag ( 2 );
-				break;
+	            Sprite = new cc.SpriteEx ( "res/cai2.png" );
+	            Body = cc.PhysicsBody.createCircle ( 55 );
+	            Sprite.setTag ( 2 );				
+				break;				
 		}
 		
-		Sprite.setBody ( Body );
+		Sprite.setPhysicsBody ( Body );
 		Sprite.setPosition ( Point );
-		Sprite.setOpacity ( 128 );
-		this.addChild ( Sprite );
-		*/
+	    this.addChild ( Sprite );
 	},
 });

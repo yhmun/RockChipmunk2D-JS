@@ -1038,7 +1038,16 @@ cc.PhysicsBody.create = function ( mass, moment )
 };
 
 /** Create a body contains a circle shape. */
-//static PhysicsBody* createCircle(float radius, const PhysicsMaterial& material = PHYSICSBODY_MATERIAL_DEFAULT, const Vec2& offset = Vec2::ZERO);
+cc.PhysicsBody.createCircle = function ( radius, material, offset )
+{
+	if ( material 	=== undefined )	material = cc.PhysicsMaterial.clone ( cc.PHYSICSBODY_MATERIAL_DEFAULT );	
+	if ( offset	 	=== undefined )	offset 	 = cp.vzero;
+	
+	var 	body = new cc.PhysicsBody ( );
+	body.addShape ( cc.PhysicsShapeCircle.create ( radius, material, offset ) );
+	
+	return body;	
+};
 
 /** Create a body contains a box shape. */
 cc.PhysicsBody.createBox = function ( size, material, offset )
@@ -1056,7 +1065,16 @@ cc.PhysicsBody.createBox = function ( size, material, offset )
  * @brief Create a body contains a polygon shape.
  * points is an array of Vec2 structs defining a convex hull with a clockwise winding.
  */
-//static PhysicsBody* createPolygon(const Vec2* points, int count, const PhysicsMaterial& material = PHYSICSBODY_MATERIAL_DEFAULT, const Vec2& offset = Vec2::ZERO);
+cc.PhysicsBody.createPolygon = function ( points, material, offset )
+{
+	if ( material 	=== undefined )	material = cc.PhysicsMaterial.clone ( cc.PHYSICSBODY_MATERIAL_DEFAULT );	
+	if ( offset	 	=== undefined )	offset 	 = cp.vzero;
+	
+	var 	body = new cc.PhysicsBody ( );
+	body.addShape ( cc.PhysicsShapePolygon.create ( points, material, offset ) );
+	
+	return body;	
+};
 
 /** Create a body contains a EdgeSegment shape. */
 //static PhysicsBody* createEdgeSegment(const Vec2& a, const Vec2& b, const PhysicsMaterial& material = PHYSICSBODY_MATERIAL_DEFAULT, float border = 1);
@@ -1076,7 +1094,18 @@ cc.PhysicsBody.createEdgeBox = function ( size, material, border, offset )
 };
 
 /** Create a body contains a EdgePolygon shape. */
-//static PhysicsBody* createEdgePolygon(const Vec2* points, int count, const PhysicsMaterial& material = PHYSICSBODY_MATERIAL_DEFAULT, float border = 1);
+cc.PhysicsBody.createEdgePolygon = function ( points, material, border )
+{
+	if ( material 	=== undefined )	material = cc.PhysicsMaterial.clone ( cc.PHYSICSBODY_MATERIAL_DEFAULT );	
+	if ( border	 	=== undefined )	border 	 = 1;
+	
+	var 	body = new cc.PhysicsBody ( );
+	body.addShape ( cc.PhysicsShapeEdgePolygon.create ( points, material, border ) );
+	body._dynamic = false;
+	
+	return body;	
+};
+
 /** Create a body contains a EdgeChain shape. */
 //static PhysicsBody* createEdgeChain(const Vec2* points, int count, const PhysicsMaterial& material = PHYSICSBODY_MATERIAL_DEFAULT, float border = 1);
 

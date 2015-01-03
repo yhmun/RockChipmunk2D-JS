@@ -235,7 +235,6 @@ virtual ~PhysicsJointLimit() {}
 /*
  * @brief A pin joint allows the two bodies to independently rotate around the anchor point as if pinned together.
  */
-
 cc.PhysicsJointPin = cc.PhysicsJoint.extend
 ({
 	ctor:function ( )
@@ -266,6 +265,40 @@ cc.PhysicsJointPin.create = function ( a, b, anchr )
 };
 
 /** Set the fixed distance with two bodies */
+cc.PhysicsJointDistance = cc.PhysicsJoint.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );
+	},
+
+	init:function ( a, b, anchr1, anchr2 )
+	{
+		cc.PhysicsJoint.prototype.init.call ( this, a, b );
+
+		var 	joint = new cp.PinJoint ( this.getBodyInfo ( a ).getBody ( ), this.getBodyInfo ( b ).getBody ( ), anchr1, anchr2 );				
+		if ( joint != null )
+		{
+			this._info.add ( joint );
+			return true;
+		}
+
+		return false;
+	},
+
+	getDistance:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.dist;
+	},
+
+	setDistance:function ( distance )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.dist = distance;		
+	},
+});
+
 /*
 class CC_DLL PhysicsJointDistance : public PhysicsJoint
 {
@@ -283,6 +316,13 @@ protected:
 virtual ~PhysicsJointDistance() {}
 };
 */
+
+cc.PhysicsJointDistance.create = function ( a, b, anchr1, anchr2 )
+{
+	var		Joint = new cc.PhysicsJointDistance ( );
+	Joint.init ( a, b, anchr1, anchr2 );
+	return Joint;	
+};
 
 /** Connecting two physics bodies together with a spring. */
 /*

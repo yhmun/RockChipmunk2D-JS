@@ -30,13 +30,61 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
-msw.ContactFilter = cc.Scene.extend 
+msw.ContactFilter = msw.BaseScene.extend 
 ({
 	ctor:function ( ) 
 	{
 		this._super ( );
 
-		var		BG = new cc.LayerColor ( cc.color ( 128, 128, 128, 128 ) );
-		this.addChild ( BG );
+		this.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -400 ) );
+
+		var		ball1 = this.createBall ( cc.p ( 100, 100 ), 50, cc.PHYSICSBODY_MATERIAL_DEFAULT );
+		var		ball2 = this.createBall ( cc.p ( 400, 100 ), 50, cc.PHYSICSBODY_MATERIAL_DEFAULT );
+		this.addChild ( ball1 );
+		this.addChild ( ball2 );
+		
+		var		box1 = this.createBox ( cc.p ( 400, 200 ), cc.size ( 100, 100 ) );
+		var		box2 = this.createBox ( cc.p ( 600, 400 ), cc.size ( 100, 100 ) );
+		this.addChild ( box1 );
+		this.addChild ( box2 );		
+		
+		var		ball1_body = ball1.getPhysicsBody ( );
+		ball1_body.setCategoryBitmask 	 ( 0x01 );
+		ball1_body.setContactTestBitmask ( 0x01 );
+		ball1_body.setCollisionBitmask 	 ( 0x01 );
+		ball1_body.setGroup ( 0 );
+		
+		var		ball2_body = ball2.getPhysicsBody ( );
+		ball2_body.setCategoryBitmask 	 ( 0x01 );
+		ball2_body.setContactTestBitmask ( 0x01 );
+		ball2_body.setCollisionBitmask	 ( 0x01 );
+		ball2_body.setGroup ( 0 );
+		
+		var		box1_body = box1.getPhysicsBody ( );
+		box1_body.setCategoryBitmask  ( 0x02 );
+		box1_body.setCollisionBitmask ( 0x04 );
+		box1_body.setGroup ( 2 );
+		
+		var		box2_body = box2.getPhysicsBody ( );
+//		box2_body.setCategoryBitmask ( 0x02 );
+		box2_body.setGroup ( 2 );
+/*		    
+	    auto contactListener = EventListenerPhysicsContactWithBodies::create(ball1_body, ball2_body);
+	    contactListener->onContactBegin = CC_CALLBACK_1(ContactFilterScene::onContactBegin, this);
+	    contactListener->onContactPreSolve = CC_CALLBACK_2(ContactFilterScene::onContactPreSolve, this);
+	    contactListener->onContactPostSolve = CC_CALLBACK_2(ContactFilterScene::onContactPostSolve, this);
+	    contactListener->onContactSeperate = CC_CALLBACK_1(ContactFilterScene::onContactSeperate, this);
+	    _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
+*/	    
 	},
+	
+	demo_info:function ( )
+	{
+		return "07 Contact Filter";
+	},
+
+	restart:function ( Sender )
+	{
+		cc.director.runScene ( new msw.ContactFilter ( ) );
+	},	
 });

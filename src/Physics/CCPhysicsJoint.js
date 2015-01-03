@@ -137,22 +137,22 @@ cc.PhysicsJoint = cc.Class.extend
 			joint.maxForce = force;
 		}
 	},
-	
+
 	/** Get the max force setting */
 	getMaxForce:function ( ) 
 	{
 		return this._info.getJoints ( ) [ 0 ].maxForce;
 	},
-	
+
 	/**
 	 * PhysicsShape is PhysicsBody's friend class, but all the subclasses isn't. so this method is use for subclasses to catch the bodyInfo from PhysicsBody.
 	 */
-	
+
 	getBodyInfo:function ( body ) 
 	{
 		return body._info;
 	},
-	
+
 	getBodyNode:function ( body ) 
 	{
 		return body._node;
@@ -189,20 +189,45 @@ cc.PhysicsJoint.destroy = function ( joint )
 /*
  * @brief A fixed joint fuses the two bodies together at a reference point. Fixed joints are useful for creating complex shapes that can be broken apart later.
  */
-/*
-class CC_DLL PhysicsJointFixed : public PhysicsJoint
+cc.PhysicsJointFixed = cc.PhysicsJoint.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );
+	},
+	
+	init:function ( a, b, anchr )
+	{
+		cc.PhysicsJoint.prototype.init.call ( this, a, b );
+
+		this.getBodyNode ( a ).setPosition ( anchr );
+		this.getBodyNode ( b ).setPosition ( anchr );
+		
+		var 	joint = new cp.PivotJoint ( this.getBodyInfo ( a ).getBody ( ), this.getBodyInfo ( b ).getBody ( ), anchr );				
+		if ( joint != null )
+		{
+			this._info.add ( joint );
+			
+			// add a gear joint to make two body have the same rotation.
+			joint = new cp.GearJoint ( this.getBodyInfo ( a ).getBody ( ), this.getBodyInfo ( b ).getBody ( ), 0, 1 );
+			if ( joint != null )
+			{
+				this._info.add ( joint );
+				return true;
+			}
+		}
+
+		return false;		
+	},
+
+});
+
+cc.PhysicsJointFixed.create = function ( a, b, anchr )
 {
-	public:
-		static PhysicsJointFixed* construct(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr);
-
-protected:
-	bool init(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr);
-
-protected:
-	PhysicsJointFixed() {}
-virtual ~PhysicsJointFixed() {}
+	var		Joint = new cc.PhysicsJointFixed ( );
+	Joint.init ( a, b, anchr );
+	return Joint;	
 };
-*/
 
 /*
  * @brief A limit joint imposes a maximum distance between the two bodies, as if they were connected by a rope.
@@ -282,7 +307,7 @@ cc.PhysicsJointLimit.create = function ( a, b, anchr1, anchr2, min, max )
 	if ( min === undefined || max === undefined )	
 	{
 		min = 0;
-		max = b.local2World ( anchr1 ).getDistance ( a.local2World ( anchr2 ) );
+		max = cp.v.dist ( b.local2World ( anchr1 ), a.local2World ( anchr2 ) );
 	}
 
 	var		Joint = new cc.PhysicsJointLimit ( );
@@ -365,53 +390,176 @@ cc.PhysicsJointDistance.create = function ( a, b, anchr1, anchr2 )
 };
 
 /** Connecting two physics bodies together with a spring. */
-/*
-class CC_DLL PhysicsJointSpring : public PhysicsJoint
+cc.PhysicsJointSpring = cc.PhysicsJoint.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );
+	},
+
+	init:function ( a, b, anchr1, anchr2, stiffness, damping )
+	{
+		cc.PhysicsJoint.prototype.init.call ( this, a, b );
+
+		var 	joint = new cp.DampedSpring 
+		( 
+			this.getBodyInfo ( a ).getBody ( ), 
+			this.getBodyInfo ( b ).getBody ( ), 
+			anchr1, 
+			anchr2,
+			cp.v.dist ( this._bodyB.local2World ( anchr1 ), this._bodyA.local2World ( anchr2 ) ), 
+			stiffness,
+			damping 
+		);				
+		if ( joint != null )
+		{
+			this._info.add ( joint );
+			return true;
+		}
+
+		return false;
+	},
+
+	getAnchr1:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.anchr1;
+	},
+
+	setAnchr1:function ( anchr1 )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.anchr1 = anchr1;		
+	},
+	
+	getAnchr2:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.anchr2;
+	},
+
+	setAnchr2:function ( anchr2 )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.anchr2 = anchr2;		
+	},
+	
+	getRestLength:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.restLength;
+	},
+
+	setRestLength:function ( restLength )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.restLength = restLength;		
+	},
+
+	getStiffness:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.stiffness;
+	},
+
+	setStiffness:function ( stiffness )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.stiffness = stiffness;		
+	},
+
+	getDamping:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.damping;
+	},
+
+	setDamping:function ( damping )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.damping = damping;		
+	},	
+});
+
+cc.PhysicsJointSpring.create = function ( a, b, anchr1, anchr2, stiffness, damping )
 {
-	public:
-		static PhysicsJointSpring* construct(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr1, const Vec2& anchr2, float stiffness, float damping);
-Vec2 getAnchr1() const;
-void setAnchr1(const Vec2& anchr1);
-Vec2 getAnchr2() const;
-void setAnchr2(const Vec2& anchr2);
-float getRestLength() const;
-void setRestLength(float restLength);
-float getStiffness() const;
-void setStiffness(float stiffness);
-float getDamping() const;
-void setDamping(float damping);
-
-protected:
-	bool init(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr1, const Vec2& anchr2, float stiffness, float damping);
-
-protected:
-	PhysicsJointSpring() {}
-virtual ~PhysicsJointSpring() {}
+	var		Joint = new cc.PhysicsJointSpring ( );
+	Joint.init ( a, b, anchr1, anchr2, stiffness, damping );
+	return Joint;	
 };
-*/
 
 /** Attach body a to a line, and attach body b to a dot */
-/*
-class CC_DLL PhysicsJointGroove : public PhysicsJoint
+cc.PhysicsJointGroove = cc.PhysicsJoint.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );
+	},
+
+	init:function ( a, b, grooveA, grooveB, anchr2 )
+	{
+		cc.PhysicsJoint.prototype.init.call ( this, a, b );
+
+		var 	joint = new cp.GrooveJoint 
+		( 
+			this.getBodyInfo ( a ).getBody ( ), 
+			this.getBodyInfo ( b ).getBody ( ), 
+			grooveA, 
+			grooveB,
+			anchr2
+		);				
+		if ( joint != null )
+		{
+			this._info.add ( joint );
+			return true;
+		}
+
+		return false;
+	},
+	
+	getGrooveA:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.grooveA;
+	},
+	
+	setGrooveA:function ( grooveA )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.grooveA = grooveA;		
+	},
+
+	getGrooveB:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.grooveB;
+	},
+	
+	setGrooveB:function ( grooveB )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.grooveB = grooveB;		
+	},
+	
+	getAnchr2:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.anchr2;
+	},
+
+	setAnchr2:function ( anchr2 )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.anchr2 = anchr2;		
+	},
+});
+
+cc.PhysicsJointGroove.create = function ( a, b, grooveA, grooveB, anchr2 )
 {
-	public:
-		static PhysicsJointGroove* construct(PhysicsBody* a, PhysicsBody* b, const Vec2& grooveA, const Vec2& grooveB, const Vec2& anchr2);
-
-Vec2 getGrooveA() const;
-void setGrooveA(const Vec2& grooveA);
-Vec2 getGrooveB() const;
-void setGrooveB(const Vec2& grooveB);
-Vec2 getAnchr2() const;
-void setAnchr2(const Vec2& anchr2);
-
-protected:
-	bool init(PhysicsBody* a, PhysicsBody* b, const Vec2& grooveA, const Vec2& grooveB, const Vec2& anchr);
-
-protected:
-	PhysicsJointGroove() {}
-virtual ~PhysicsJointGroove() {}
+	var		Joint = new cc.PhysicsJointGroove ( );
+	Joint.init ( a, b, grooveA, grooveB, anchr2 );
+	return Joint;	
 };
- */
 
 /** Likes a spring joint, but works with rotary */
 cc.PhysicsJointRotarySpring = cc.PhysicsJoint.extend
@@ -425,7 +573,14 @@ cc.PhysicsJointRotarySpring = cc.PhysicsJoint.extend
 	{
 		cc.PhysicsJoint.prototype.init.call ( this, a, b );
 
-		var 	joint = new cp.DampedRotarySpring ( this.getBodyInfo ( a ).getBody ( ), this.getBodyInfo ( b ).getBody ( ), this._bodyB.getRotation ( ) - this._bodyA.getRotation ( ), stiffness, damping );				
+		var 	joint = new cp.DampedRotarySpring 
+		( 
+			this.getBodyInfo ( a ).getBody ( ), 
+			this.getBodyInfo ( b ).getBody ( ),
+			this._bodyB.getRotation ( ) - this._bodyA.getRotation ( ),
+			stiffness,
+			damping
+		);				
 		if ( joint != null )
 		{
 			this._info.add ( joint );
@@ -480,86 +635,240 @@ cc.PhysicsJointRotarySpring.create = function ( a, b, stiffness, damping )
 };
 
 /** Likes a limit joint, but works with rotary */
-/*
-class CC_DLL PhysicsJointRotaryLimit : public PhysicsJoint
+cc.PhysicsJointRotaryLimit = cc.PhysicsJoint.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );
+	},
+
+	init:function ( a, b, min, max )
+	{
+		cc.PhysicsJoint.prototype.init.call ( this, a, b );
+
+		var 	joint = new cp.RotaryLimitJoint 
+		( 
+			this.getBodyInfo ( a ).getBody ( ), 
+			this.getBodyInfo ( b ).getBody ( ),
+			min,
+			max
+		);				
+		if ( joint != null )
+		{
+			this._info.add ( joint );
+			return true;
+		}
+
+		return false;
+	},
+
+	getMin:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.min;
+	},
+
+	setMin:function ( min )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.min = min;		
+	},	
+	
+	getMax:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.max;
+	},
+
+	setMax:function ( max )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.max = max;		
+	},
+});
+
+cc.PhysicsJointRotaryLimit.create = function ( a, b, min, max )
 {
-	public:
-		static PhysicsJointRotaryLimit* construct(PhysicsBody* a, PhysicsBody* b, float min, float max);
-static PhysicsJointRotaryLimit* construct(PhysicsBody* a, PhysicsBody* b);
-
-float getMin() const;
-void setMin(float min);
-float getMax() const;
-void setMax(float max);
-
-protected:
-	bool init(PhysicsBody* a, PhysicsBody* b, float min, float max);
-
-protected:
-	PhysicsJointRotaryLimit() {}
-virtual ~PhysicsJointRotaryLimit() {}
+	var		Joint = new cc.PhysicsJointRotaryLimit ( );
+	Joint.init ( a, b, min, max );
+	return Joint;	
 };
-*/
 
 /** Works like a socket wrench. */
-/*
-class CC_DLL PhysicsJointRatchet : public PhysicsJoint
+cc.PhysicsJointRatchet = cc.PhysicsJoint.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );
+	},
+
+	init:function ( a, b, phase, ratchet )
+	{
+		cc.PhysicsJoint.prototype.init.call ( this, a, b );
+
+		var 	joint = new cp.RatchetJoint 
+		( 
+			this.getBodyInfo ( a ).getBody ( ), 
+			this.getBodyInfo ( b ).getBody ( ),
+			phase,
+			ratchet
+		);				
+		if ( joint != null )
+		{
+			this._info.add ( joint );
+			return true;
+		}
+
+		return false;
+	},
+
+	getAngle:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.angle;
+	},
+
+	setAngle:function ( angle )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.angle = angle;		
+	},	
+	
+	getPhase:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.phase;
+	},
+
+	setPhase:function ( phase )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.phase = phase;		
+	},	
+
+	getRatchet:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.ratchet;
+	},
+
+	setRatchet:function ( ratchet )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.maxratchet = ratchet;		
+	},
+});
+
+cc.PhysicsJointRatchet.create = function ( a, b, phase, ratchet )
 {
-	public:
-		static PhysicsJointRatchet* construct(PhysicsBody* a, PhysicsBody* b, float phase, float ratchet);
-
-float getAngle() const;
-void setAngle(float angle);
-float getPhase() const;
-void setPhase(float phase);
-float getRatchet() const;
-void setRatchet(float ratchet);
-
-protected:
-	bool init(PhysicsBody* a, PhysicsBody* b, float phase, float ratchet);
-
-protected:
-	PhysicsJointRatchet() {}
-virtual ~PhysicsJointRatchet() {}
+	var		Joint = new cc.PhysicsJointRatchet ( );
+	Joint.init ( a, b, phase, ratchet );
+	return Joint;	
 };
-*/
 
 /** Keeps the angular velocity ratio of a pair of bodies constant. */
-/*
-class CC_DLL PhysicsJointGear : public PhysicsJoint
+cc.PhysicsJointGear = cc.PhysicsJoint.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );
+	},
+
+	init:function ( a, b, phase, ratio )
+	{
+		cc.PhysicsJoint.prototype.init.call ( this, a, b );
+
+		var 	joint = new cp.GearJoint 
+		( 
+			this.getBodyInfo ( a ).getBody ( ), 
+			this.getBodyInfo ( b ).getBody ( ),
+			phase,
+			ratio
+		);				
+		if ( joint != null )
+		{
+			this._info.add ( joint );
+			return true;
+		}
+
+		return false;
+	},
+
+	getPhase:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.phase;
+	},
+
+	setPhase:function ( phase )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.min = phase;		
+	},	
+
+	getRatio:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.ratio;
+	},
+
+	setRatio:function ( ratio )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.ratio = ratio;		
+	},
+});
+
+cc.PhysicsJointGear.create = function ( a, b, phase, ratio )
 {
-	public:
-		static PhysicsJointGear* construct(PhysicsBody* a, PhysicsBody* b, float phase, float ratio);
-
-float getPhase() const;
-void setPhase(float phase);
-float getRatio() const;
-void setRatio(float ratchet);
-
-protected:
-	bool init(PhysicsBody* a, PhysicsBody* b, float phase, float ratio);
-
-protected:
-	PhysicsJointGear() {}
-virtual ~PhysicsJointGear() {}
+	var		Joint = new cc.PhysicsJointGear ( );
+	Joint.init ( a, b, phase, ratio );
+	return Joint;	
 };
-*/
 
 /** Keeps the relative angular velocity of a pair of bodies constant */
-/*
-class CC_DLL PhysicsJointMotor : public PhysicsJoint
+cc.PhysicsJointMotor = cc.PhysicsJoint.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );
+	},
+
+	init:function ( a, b, rate )
+	{
+		cc.PhysicsJoint.prototype.init.call ( this, a, b );
+
+		var 	joint = new cp.SimpleMotor 
+		( 
+			this.getBodyInfo ( a ).getBody ( ), 
+			this.getBodyInfo ( b ).getBody ( ),
+			rate
+		);				
+		if ( joint != null )
+		{
+			this._info.add ( joint );
+			return true;
+		}
+
+		return false;
+	},	
+
+	getRate:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.rate;
+	},
+
+	setRate:function ( rate )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.rate = rate;		
+	},
+});
+
+cc.PhysicsJointMotor.create = function ( a, b, rate )
 {
-	public:
-		static PhysicsJointMotor* construct(PhysicsBody* a, PhysicsBody* b, float rate);
-
-float getRate() const;
-void setRate(float rate);
-
-protected:
-	bool init(PhysicsBody* a, PhysicsBody* b, float rate);
-
-protected:
-	PhysicsJointMotor() {}
-virtual ~PhysicsJointMotor() {}
+	var		Joint = new cc.PhysicsJointMotor ( );
+	Joint.init ( a, b, rate );
+	return Joint;	
 };
-*/

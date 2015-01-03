@@ -30,63 +30,51 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
-msw.SlideJoint = cc.SceneEx.extend 
+msw.SlideJoint = msw.BaseScene.extend 
 ({
 	ctor:function ( ) 
 	{
 		this._super ( );
 
-		var		BG = new cc.LayerColor ( cc.color ( 128, 128, 128, 128 ) );
-		this.addChild ( BG );
+		this.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -500 ) );
 		
-		var		size = cc.winSize;
-		var 	body = cc.PhysicsBody.createEdgeBox ( cc.size ( size.width - 20, size.height - 20 ), cc.PHYSICSBODY_MATERIAL_DEFAULT, 3 );				
-	    this._wallNode = new cc.NodeEx ( );
-	    body.setGroup ( 1 );
-	    this._wallNode.setPosition ( size.width / 2, size.height / 2 );
-	    this._wallNode.setPhysicsBody ( body );
-	    this.addChild ( this._wallNode );	
-	    
-	    this.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
-	    this.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) ); 
-	    	    
-    
+		var		Box1 = this.createBox ( cc.p ( 400, 200 ), cc.size ( 100, 100 ) );
+		var		Box2 = this.createBox ( cc.p ( 600, 400 ), cc.size ( 100, 100 ) );		
+		this.addChild ( Box1 );
+		this.addChild ( Box2 );		
+		
+	    var 	BoxJoint  = cc.PhysicsJointLimit.create ( Box1.getPhysicsBody ( ), Box2.getPhysicsBody ( ), cc.p ( 0, 0 ), cc.p ( 0, 0 ), 120, 200 );
+	    this.getPhysicsWorld ( ).addJoint ( BoxJoint );
+	
+	    var 	Box = null;
+	    var 	ChainJointDistance = null;
+	    var 	ChainLen = 10;
+	    var 	Boxes = new Array ( );
+	    for ( var i = 0; i < ChainLen; i++ )
+	    {
+	    	Box = this.createBox ( cc.p ( 500 + 40 * i, 600 ), cc.size ( 20, 10 ) );
+	        this.addChild ( Box );
+	        Boxes.push ( Box );
+	        if ( i == 0 )
+	        {
+	            Box.getPhysicsBody ( ).setDynamic ( false );
+	        }
+	        
+	        if ( i > 0 )
+	        {
+	        	ChainJointDistance = cc.PhysicsJointLimit.create ( Boxes [ i - 1 ].getPhysicsBody ( ), Boxes [ i ].getPhysicsBody ( ), cc.p ( 10, 0 ), cc.p ( -10, 0 ), 10, 20 );
+	        	this.getPhysicsWorld ( ).addJoint ( ChainJointDistance );
+	        }
+	    }
 	},
 	
-	createBox:function ( point, size )
+	demo_info:function ( )
 	{
-	    //Sprite* box = Sprite::create("YellowSquare.png");
-	    //box->setScale(size.width/100.0f, size.height/100.0f);		
-		var		box = new cc.NodeEx ( );
-	    
-	    var 	body = cc.PhysicsBody.createBox ( size );
-	    box.setPhysicsBody ( body );
-	    box.setPosition ( point );
-	    box.setRotation ( cc.random0To1 ( ) * 360 );
-	    body.setTag ( DRAG_BODYS_TAG );
-	    
-	    return box;
-	    
-	    /*
-		var 	Body = new cp.Body ( 1, cp.momentForBox ( 1, Size.width, Size.height ) );
-		Body.setPos ( Point );	
-		this.Space.addBody ( Body );
-				
-		var 	Shape = new cp.BoxShape ( Body, Size.width, Size.height );
-		Shape.setElasticity ( 0.5 );
-		Shape.setFriction ( 0.5 );
-		this.Space.addShape ( Shape );
-		
-		var 	Box = new cc.PhysicsSprite ( "res/YellowSquare.png" );
-		var		BoxSize = Box.getContentSize ( );
-		Box.setBody ( Body );	
-		Box.setScale ( Size.width / BoxSize.width, Size.height / BoxSize.height );
-		Box.setPosition ( Point );
-		Box.setRotation ( cc.random0To1 ( ) * 360 );	
-		Box.setTag ( DRAG_BODYS_TAG );
-//		Body.setUserData ( Box );
-	    */
+		return "04 Slide Joint";
+	},
 
-		return Box;				
+	restart:function ( Sender )
+	{
+		cc.director.runScene ( new msw.SlideJoint ( ) );
 	},	
 });

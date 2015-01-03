@@ -80,7 +80,7 @@ msw.PinJoint = msw.BaseScene.extend
 	
 	demo_info:function ( )
 	{
-		return "02 Pin Joint";
+		return "03 Pin Joint";
 	},
 
 	restart:function ( Sender )

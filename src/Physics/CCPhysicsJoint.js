@@ -207,30 +207,88 @@ virtual ~PhysicsJointFixed() {}
 /*
  * @brief A limit joint imposes a maximum distance between the two bodies, as if they were connected by a rope.
  */
-/*
-class CC_DLL PhysicsJointLimit : public PhysicsJoint
+cc.PhysicsJointLimit = cc.PhysicsJoint.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );
+	},
+
+	init:function ( a, b, anchr1, anchr2, min, max )
+	{
+		cc.PhysicsJoint.prototype.init.call ( this, a, b );
+
+		var 	joint = new cp.SlideJoint ( this.getBodyInfo ( a ).getBody ( ), this.getBodyInfo ( b ).getBody ( ), anchr1, anchr2, min, max );				
+		if ( joint != null )
+		{
+			this._info.add ( joint );
+			return true;
+		}
+
+		return false;
+	},
+
+	getAnchr1:function ( )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.anchr1;
+	},
+	
+	setAnchr1:function ( anchr1 )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.anchr1 = anchr1;
+	},
+	
+	getAnchr2:function ( )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.anchr2;
+	},
+	
+	setAnchr2:function ( anchr2 )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.anchr2 = anchr2;
+	},
+	
+	getMin:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.min;
+	},
+	
+	setMin:function ( min )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.min = min;
+	},
+	
+	getMax:function ( )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.max;
+	},
+	
+	setMax:function ( max )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.max = max;
+	},
+});
+
+cc.PhysicsJointLimit.create = function ( a, b, anchr1, anchr2, min, max )
 {
-	public:
-		static PhysicsJointLimit* construct(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr1, const Vec2& anchr2);
-static PhysicsJointLimit* construct(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr1, const Vec2& anchr2, float min, float max);
+	if ( min === undefined || max === undefined )	
+	{
+		min = 0;
+		max = b.local2World ( anchr1 ).getDistance ( a.local2World ( anchr2 ) );
+	}
 
-Vec2 getAnchr1() const;
-void setAnchr1(const Vec2& anchr1);
-Vec2 getAnchr2() const;
-void setAnchr2(const Vec2& anchr2);
-float getMin() const;
-void setMin(float min);
-float getMax() const;
-void setMax(float max);
-
-protected:
-	bool init(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr1, const Vec2& anchr2, float min, float max);
-
-protected:
-	PhysicsJointLimit() {}
-virtual ~PhysicsJointLimit() {}
+	var		Joint = new cc.PhysicsJointLimit ( );
+	Joint.init ( a, b, anchr1, anchr2, min, max );
+	return Joint;	
 };
-*/
 
 /*
  * @brief A pin joint allows the two bodies to independently rotate around the anchor point as if pinned together.
@@ -298,24 +356,6 @@ cc.PhysicsJointDistance = cc.PhysicsJoint.extend
 		joint.dist = distance;		
 	},
 });
-
-/*
-class CC_DLL PhysicsJointDistance : public PhysicsJoint
-{
-	public:
-		static PhysicsJointDistance* construct(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr1, const Vec2& anchr2);
-
-float getDistance() const;
-void setDistance(float distance);
-
-protected:
-	bool init(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr1, const Vec2& anchr2);
-
-protected:
-	PhysicsJointDistance() {}
-virtual ~PhysicsJointDistance() {}
-};
-*/
 
 cc.PhysicsJointDistance.create = function ( a, b, anchr1, anchr2 )
 {

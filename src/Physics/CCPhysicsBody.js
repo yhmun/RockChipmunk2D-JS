@@ -492,7 +492,7 @@ cc.PhysicsBody = cc.Class.extend
 	/** get the body rotation. */
 	getRotation:function ( ) 
 	{
-		return -( this._info.getBody ( ).getAngle ( ) * ( 180.0 / Math.PI ) ) - this._rotationOffset;
+		return -( this._info.getBody ( ).a * ( 180.0 / Math.PI ) ) - this._rotationOffset;
 	},
 
 	/** set body position offset, it's the position witch relative to node */
@@ -1037,10 +1037,10 @@ cc.PhysicsBody.createCircle = function ( radius, material, offset )
 {
 	if ( material 	=== undefined )	material = cc.PhysicsMaterial.clone ( cc.PHYSICSBODY_MATERIAL_DEFAULT );	
 	if ( offset	 	=== undefined )	offset 	 = cp.vzero;
-	
+
 	var 	body = new cc.PhysicsBody ( );
 	body.addShape ( cc.PhysicsShapeCircle.create ( radius, material, offset ) );
-	
+
 	return body;	
 };
 
@@ -1072,6 +1072,18 @@ cc.PhysicsBody.createPolygon = function ( points, material, offset )
 };
 
 /** Create a body contains a EdgeSegment shape. */
+cc.PhysicsBody.createEdgeSegment = function ( a, b, material, border )
+{
+	if ( material 	=== undefined )	material = cc.PhysicsMaterial.clone ( cc.PHYSICSBODY_MATERIAL_DEFAULT );	
+	if ( border	 	=== undefined )	border 	 = 1;
+	
+	var 	body = new cc.PhysicsBody ( );
+	body.addShape ( cc.PhysicsShapeEdgeSegment.create ( a, b, material, border ) );
+	body._dynamic = false;
+
+	return body;	
+};
+
 //static PhysicsBody* createEdgeSegment(const Vec2& a, const Vec2& b, const PhysicsMaterial& material = PHYSICSBODY_MATERIAL_DEFAULT, float border = 1);
 
 /** Create a body contains a EdgeBox shape. */
@@ -1102,7 +1114,14 @@ cc.PhysicsBody.createEdgePolygon = function ( points, material, border )
 };
 
 /** Create a body contains a EdgeChain shape. */
-//static PhysicsBody* createEdgeChain(const Vec2* points, int count, const PhysicsMaterial& material = PHYSICSBODY_MATERIAL_DEFAULT, float border = 1);
-
-
-
+cc.PhysicsBody.createEdgeChain = function ( points, material, border )
+{
+	if ( material 	=== undefined )	material = cc.PhysicsMaterial.clone ( cc.PHYSICSBODY_MATERIAL_DEFAULT );	
+	if ( border	 	=== undefined )	border 	 = 1;
+	
+	var 	body = new cc.PhysicsBody ( );
+	body.addShape ( cc.PhysicsShapeEdgeChain.create ( points, material, border ) );
+	body._dynamic = false;
+	
+	return body;	
+};

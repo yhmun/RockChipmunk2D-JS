@@ -726,26 +726,26 @@ cc.PhysicsShapeBox = cc.PhysicsShapePolygon.extend
 
 		return cc.size ( cp.v.dist ( v1, v2 ), cp.v.dist ( v0, v1 ) );
 	},
-	
+
 	getOffset:function ( )
 	{
 		return this.getCenter ( ); 
 	},	
-	
+
 	init:function ( size, material, offset )
 	{		
 		if ( material === undefined )	material = cc.PhysicsMaterial.clone ( cc.PHYSICSSHAPE_MATERIAL_DEFAULT );
 		if ( offset   === undefined )	offset	 = cp.vzero;
 
 		cc.PhysicsShape.prototype.init.call ( this, cc.PhysicsShape.Type.BOX );
-				
+
 		var 	points = 
-		[
+			[
 			 -size.width / 2, -size.height / 2,
 			 -size.width / 2, +size.height / 2,
 			 +size.width / 2, +size.height / 2,
 			 +size.width / 2, -size.height / 2
-		];
+			 ];
 
 		var 	shape = new cp.PolyShape ( this._info.getSharedBody ( ), points, offset );
 
@@ -754,7 +754,7 @@ cc.PhysicsShapeBox = cc.PhysicsShapePolygon.extend
 			return false;
 		}
 		this._info.add ( shape );
-				
+
 		this._area = this.calculateArea ( );
 		this._mass = material.density == cc.PHYSICS_INFINITY ? cc.PHYSICS_INFINITY : material.density * this._area;
 		this._moment = this.calculateDefaultMoment ( );
@@ -773,27 +773,80 @@ cc.PhysicsShapeBox.create = function ( size, material, offset )
 };
 
 /** A segment shape */
-/*
-class CC_DLL PhysicsShapeEdgeSegment : public PhysicsShape
-{
-public:
-    static PhysicsShapeEdgeSegment* create(const Vec2& a, const Vec2& b, const PhysicsMaterial& material = PHYSICSSHAPE_MATERIAL_DEFAULT, float border = 1);
+cc.PhysicsShapeEdgeSegment = cc.PhysicsShape.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );		
+	},
 
-    Vec2 getPointA() const;
-    Vec2 getPointB() const;
-    virtual Vec2 getCenter() override;
+	init:function ( a, b, material, border )
+	{
+		if ( material === undefined )	material = cc.PhysicsMaterial.clone ( cc.PHYSICSSHAPE_MATERIAL_DEFAULT );
+		if ( border   === undefined )	border	 = 1;
 
-protected:
-    bool init(const Vec2& a, const Vec2& b, const PhysicsMaterial& material = PHYSICSSHAPE_MATERIAL_DEFAULT, float border = 1);
-    virtual void update(float delta) override;
+		cc.PhysicsShape.prototype.init.call ( this, cc.PhysicsShape.Type.EDGESEGMENT );
 
-protected:
-    PhysicsShapeEdgeSegment();
-    virtual ~PhysicsShapeEdgeSegment();
+		var 	shape = new cp.SegmentShape ( this._info.getSharedBody ( ), a, b, border );
+		if ( shape == null )
+		{
+			return false;				
+		}		
+		this._info.add ( shape );
+	                
+		this._mass = cc.PHYSICS_INFINITY;
+		this._moment = cc.PHYSICS_INFINITY;
+    
+		this.setMaterial ( material );		
+	},
+	
+    getPointA:function ( )
+    {
+    	return this._info.getShapes ( ) [ 0 ].ta;
+    },
+    
+    getPointB:function ( )
+    {
+    	return this._info.getShapes ( ) [ 0 ].tb;
+    },
+    		
+    getCenter:function ( ) 
+    {
+    	var 	a = this._info.getShapes ( ) [ 0 ].a;
+    	var 	b = this._info.getShapes ( ) [ 0 ].b;
+    	
+    	return cp.v.mult ( cp.v.add ( a, b ), 0.5 );
+    },
+    
+    update:function ( delta )
+    {
+    	if ( this._dirty )
+    	{
+    		var 	factorX = this._newScaleX / this._scaleX;
+    		var 	factorY = this._newScaleY / this._scaleY;
 
-    friend class PhysicsBody;
+    		var		shape = this._info.getShapes ( ) [ 0 ];    	
+			var 	a = shape.a;											
+			a.x *= factorX;
+			a.y *= factorY;
+
+			var 	b = shape.b;
+			b.x *= factorX;
+			b.y *= factorY;		
+
+			shape.setEndpoints ( a, b );								    		
+    	}
+
+    	cc.PhysicsShape.prototype.update.call ( this, delta );
+    },
+});
+
+cc.PhysicsShapeEdgeSegment.create = function ( a, b, material, border )
+{	
+	var		Shape = new cc.PhysicsShapeEdgeSegment ( );
+	Shape.init ( a, b, material, border );
+	return Shape;
 };
- */
 
 /** An edge polygon shape */
 cc.PhysicsShapeEdgePolygon = cc.PhysicsShape.extend
@@ -960,24 +1013,116 @@ cc.PhysicsShapeEdgeBox.create = function ( size, material, border, offset )
 };
 
 /** a chain shape */
-/*
-class CC_DLL PhysicsShapeEdgeChain : public PhysicsShape
-{
-public:
-    static PhysicsShapeEdgeChain* create(const Vec2* points, int count, const PhysicsMaterial& material = PHYSICSSHAPE_MATERIAL_DEFAULT, float border = 1);
-    virtual Vec2 getCenter() override;
-    void getPoints(Vec2* outPoints) const;
-    int getPointsCount() const;
-    
-protected:
-    bool init(const Vec2* points, int count, const PhysicsMaterial& material = PHYSICSSHAPE_MATERIAL_DEFAULT, float border = 1);
-    virtual void update(float delta) override;
-    
-protected:
-    PhysicsShapeEdgeChain();
-    virtual ~PhysicsShapeEdgeChain();
+cc.PhysicsShapeEdgeChain = cc.PhysicsShapeEdgePolygon.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );		
+	},
 
-    friend class PhysicsBody;
+	init:function ( points, material, border )
+	{				
+		if ( material === undefined )	material = cc.PhysicsMaterial.clone ( cc.PHYSICSSHAPE_MATERIAL_DEFAULT );
+		if ( border   === undefined )	border   = 1;
+
+		cc.PhysicsShape.prototype.init.call ( this, cc.PhysicsShape.Type.EDGECHAIN );	
+
+		var		verts = new Array ( );
+		for ( var i = 0; i < points.length; i += 2 )
+		{
+			verts.push ( cp.v ( points [ i ], points [ i + 1 ] ) );			
+		}
+
+		var		count = verts.length;
+		for ( var i = 0; i < count - 1; ++i )
+		{
+			var 	shape = new cp.SegmentShape ( this._info.getSharedBody ( ), verts [ i ], verts [ i + 1 ], border );
+			if ( shape == null )
+			{
+				return false;				
+			}
+
+			shape.setElasticity ( 1 );
+			shape.setFriction ( 1 );
+
+			this._info.add ( shape );
+		}	
+
+		this._mass = cc.PHYSICS_INFINITY;
+		this._moment = cc.PHYSICS_INFINITY;
+
+		this.setMaterial ( material );
+
+		return true;
+	},
+
+	getCenter:function ( )
+	{
+		var		shapes = this._info.getShapes ( );
+		var 	count  = shapes.length + 1;
+		var		points = new Array ( count );
+		
+		for ( var idx in shapes )
+		{
+			var		shape = shapes [ idx ];
+			points [ i++ ] = shape.a;
+		}
+
+		points [ i++ ] = shapes [ shapes.length - 1 ].b;
+
+		var 	center = cp.centroidForPoly ( points );
+		return center;
+	},
+	
+	getPoints:function ( outPoints )
+	{
+		var		shapes = this._info.getShapes ( );
+		for ( var idx in shapes )
+		{
+			var		shape = shapes [ idx ];
+			outPoints [ i++ ] = shape.a;
+		}
+
+		outPoints [ i++ ] = shapes [ shapes.length - 1 ].b;
+	},
+	
+	getPointsCount:function ( )
+	{
+		return this._info.getShapes ( ).length + 1;
+	},
+	
+	update:function ( )
+	{
+		if ( this._dirty )
+		{
+			var 	factorX = this._newScaleX / this._scaleX;
+			var 	factorY = this._newScaleY / this._scaleY;
+
+			var		shapes = this._info.getShapes ( );
+			for ( var idx in shapes ) 
+			{
+				var		shape = shapes [ idx ];
+
+				var 	a = shape.a;											
+				a.x *= factorX;
+				a.y *= factorY;
+
+				var 	b = shape.b;
+				b.x *= factorX;
+				b.y *= factorY;		
+
+				shape.setEndpoints ( a, b );								
+			}
+		}
+
+		cc.PhysicsShape.prototype.update.call ( this, delta );		
+	},
+});
+
+cc.PhysicsShapeEdgeChain.create = function ( points, material, border )
+{	
+	var		Shape = new cc.PhysicsShapeEdgeBox ( );
+	Shape.init ( points, material, border );
+	return Shape;
 };
-*/
 

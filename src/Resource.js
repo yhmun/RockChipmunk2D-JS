@@ -32,5 +32,11 @@ msw.RESOURCES =
 	 "res/steroidtocat.png",
 	 "res/ChipmunkCN_logo_200x200.png",
 	 "res/fonts/Marker Felt.ttf",
-	 "res/PRKitDemo/pattern1.png"
+	 "res/PRKitDemo/pattern1.png",
+	 "res/backNormal.png",
+	 "res/backSelected.png",
+	 "res/refreshNormal.png",
+	 "res/refreshSelected.png",
+	 "res/ball.png",
+	 "res/YellowSquare.png",
 ];

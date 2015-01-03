@@ -126,11 +126,6 @@ cc.PhysicsBody = cc.Class.extend
 			}
 
 			this._shapes.push ( shape );
-
-			if ( this._group != cp.NO_GROUP && shape.getGroup ( ) == cp.NO_GROUP )
-			{
-				shape.setGroup ( this._group );
-			}
 		}
 		
 		return shape;

@@ -67,7 +67,7 @@ msw.BaseScene = cc.SceneEx.extend
 	    this.DebugDraw = true;
 	    this.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
 		
-		var		Back = new cc.MenuItemImage ( "res/backNormal.png", "res/backSelected.png", this.back, this );
+	    var		Back = new cc.MenuItemImage ( "res/backNormal.png", "res/backSelected.png", this.back, this );
 		var		Restart = new cc.MenuItemImage ( "res/refreshNormal.png", "res/refreshSelected.png", this.restart, this );
 				
 		cc.MenuItemFont.setFontSize ( 18 );
@@ -86,41 +86,15 @@ msw.BaseScene = cc.SceneEx.extend
 		Label.setPosition ( 60, SCR_H - 60 );				
 		this.addChild ( Label, 10 );     
 		
-		this.IsTouchEnable = true;
 		this.Mouses = new Array ( );
 		cc.eventManager.addListener 
 		({
 			event : cc.EventListener.TOUCH_ONE_BY_ONE,
 			swallowTouches : true,
-			onTouchBegan : function ( touch, event ) 
-			{
-				var		target = event.getCurrentTarget ( );
-				if ( target.IsTouchEnable )
-				{
-					return target.onTouchBegan ( touch );										
-				}
-
-				return false;
-			},
-			onTouchMoved : function ( touch, event ) 
-			{
-				var		target = event.getCurrentTarget ( );
-				if ( target.IsTouchEnable )
-				{
-					target.onTouchMoved ( touch );
-				}				
-			},
-			onTouchEnded : function ( touch, event ) 
-			{
-				var		target = event.getCurrentTarget ( );
-				if ( target.IsTouchEnable )
-				{
-					target.onTouchEnded ( touch );
-				}				
-			}
+			onTouchBegan : this.onTouchBegan.bind ( this ),
+			onTouchMoved : this.onTouchMoved.bind ( this ),
+			onTouchEnded : this.onTouchEnded.bind ( this )
 		}, this );	
-		
-		this.scheduleUpdate ( );
 	},
 
 	demo_info:function ( )
@@ -133,7 +107,7 @@ msw.BaseScene = cc.SceneEx.extend
 		this.IsTouchEnable = Enable;
 	},
 
-	onTouchBegan:function ( Touch )
+	onTouchBegan:function ( Touch, Event )
 	{
 	    var 	Location = Touch.getLocation ( );
 	    var 	Shapes   = this.getPhysicsWorld ( ).getShapes ( Location );
@@ -163,7 +137,7 @@ msw.BaseScene = cc.SceneEx.extend
 	    return false;
 	},	
 
-	onTouchMoved:function ( Touch )
+	onTouchMoved:function ( Touch, Event )
 	{
 		var		id = Touch.getID ( );
 		for ( var i in this.Mouses )
@@ -178,7 +152,7 @@ msw.BaseScene = cc.SceneEx.extend
 		}
 	},	
 
-	onTouchEnded:function ( Touch )
+	onTouchEnded:function ( Touch, Event )
 	{
 		var		id = Touch.getID ( );
 		for ( var i in this.Mouses )

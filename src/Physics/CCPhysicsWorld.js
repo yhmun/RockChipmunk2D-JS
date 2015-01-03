@@ -135,7 +135,7 @@ cc.PhysicsWorld = cc.Class.extend
 		
 		this._debugDraw = new cc.PhysicsDebugNode ( this._info._space );
 		this._debugDraw.setVisible ( false );
-		this._scene.addChild ( this._debugDraw, 1 );		
+		this._scene.addChild ( this._debugDraw, 1 );	
 		
 		this._info.getSpace ( ).setDefaultCollisionHandler 
 		(
@@ -325,19 +325,19 @@ cc.PhysicsWorld = cc.Class.extend
 	/** Searches for physics shapes that intersects the ray. */
 	rayCast:function ( func, start, end, data )
 	{
-		
+
 	},
-	
+
 	/** Searches for physics shapes that contains in the rect. */
 	queryRect:function ( func, rect, data )
 	{
-		
+
 	},
-	
+
 	/** Searches for physics shapes that contains the point. */
 	queryPoint:function ( func, point, data )
 	{
-		
+
 	},
 	
 	/** Get phsyics shapes that contains the point. */
@@ -354,7 +354,7 @@ cc.PhysicsWorld = cc.Class.extend
         		var		shapeInfo = shapeInfos [ i ];
         		if ( shapeInfo.key == shape )
         		{
-        			cc.log ( "Shape id : " + i );
+        			//cc.log ( "Shape id : " + i );
         			shapes.push ( shapeInfo.value.getShape ( ) );
         			return;
         		}        		
@@ -369,16 +369,22 @@ cc.PhysicsWorld = cc.Class.extend
 	/** return physics shape that contains the point. */
 	getShape:function ( point )
 	{
-		/*
-		cpShape* shape = cpSpaceNearestPointQueryNearest(this->_info->getSpace(),
-				PhysicsHelper::point2cpv(point),
-				0,
-				CP_ALL_LAYERS,
-				CP_NO_GROUP,
-				nullptr);
-
-		return shape == nullptr ? nullptr : PhysicsShapeInfo::getMap().find(shape)->second->getShape();
-		*/
+		var 	info = this._info._space.nearestPointQueryNearest ( point, 0, cp.ALL_LAYERS, cp.NO_GROUP );		
+		if ( info )
+		{							
+			var		shapeInfos = cc.PhysicsShapeInfo.getMap ( );
+        	for ( var i = 0; i < shapeInfos.length; i++ )
+        	{        	
+        		var		shapeInfo = shapeInfos [ i ];
+        		if ( shapeInfo.key == info.shape )
+        		{
+        			//cc.log ( "Shape id : " + i );
+        			return shapeInfo.value.getShape ( );
+        		}
+        	}
+		}
+		
+		return null;
 	},
 	
 	/** Get all the bodys that in the physics world. */

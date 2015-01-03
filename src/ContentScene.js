@@ -102,13 +102,14 @@ msw.ContentScene = cc.Scene.extend
 		
 			var		Label = new cc.LabelTTF ( Name, "Helvetica", 20 );
 			Label.setAnchorPoint ( cc.p ( 0, 0.5 ) )
-			Label.setPosition ( SCR_W2 - Sprite.width / 2 + 40, 30 );		
+			Label.setPosition ( 40, 20 );		
 			Label.setColor ( cc.color ( 0, 0, 0 ) );
-			Cell.addChild ( Label, 0, 123 );       		
+			Sprite.addChild ( Label, 0, 123 );       		
 		} 
 		else 
 		{
-			var		Label = Cell.getChildByTag ( 123 );
+			var		Sprite = Cell  .getChildByTag ( 100 );
+			var		Label  = Sprite.getChildByTag ( 123 );
 			Label.setString ( Name );
 		}
 

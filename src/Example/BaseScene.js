@@ -57,7 +57,7 @@ msw.BaseScene = cc.SceneEx.extend
 		
 		// Initialize Physics
 		var		Size = cc.winSize;
-		var 	Body = cc.PhysicsBody.createEdgeBox ( Size, cc.PHYSICSBODY_MATERIAL_DEFAULT, 7 );				
+		var 	Body = cc.PhysicsBody.createEdgeBox ( Size, cc.PHYSICSBODY_MATERIAL_DEFAULT, 5 );				
 	    this.WallNode = new cc.NodeEx ( );
 	    Body.setGroup ( 1 );
 	    this.WallNode.setPosition ( Size.width / 2, Size.height / 2 );
@@ -145,10 +145,10 @@ msw.BaseScene = cc.SceneEx.extend
 	    	var		Body  = Shape.getBody ( );
 	    	if ( ( Body.getTag ( ) & DRAG_BODYS_TAG ) != 0 )
 	    	{
-		        var 	Mouse = new cc.NodeEx ( );
-		        Mouse.setPhysicsBody ( cc.PhysicsBody.create ( cc.PHYSICS_INFINITY, cc.PHYSICS_INFINITY ) );
-		        Mouse.getPhysicsBody ( ).setDynamic ( false );
-		        Mouse.setPosition ( Location );
+	    		var 	Mouse = new cc.NodeEx ( );
+	    		Mouse.setPhysicsBody ( cc.PhysicsBody.create ( cc.PHYSICS_INFINITY, cc.PHYSICS_INFINITY ) );
+	    		Mouse.getPhysicsBody ( ).setDynamic ( false );
+	    		Mouse.setPosition ( Location );
 		        this.addChild ( Mouse );
 		        		        
 		        var 	Joint = cc.PhysicsJointPin.create ( Mouse.getPhysicsBody ( ), Body, Location );
@@ -211,24 +211,15 @@ msw.BaseScene = cc.SceneEx.extend
 	
 	createBall:function ( Point, Radius, Material )
 	{		
-		/*
-		var 	Body = new cp.Body ( 1, cp.momentForCircle ( 1, 0, Radius, cp.vzero ) );
-		Body.setPos ( Point );	
-		this.Space.addBody ( Body );
+		var 	Body = cc.PhysicsBody.createCircle ( Radius, Material );
+		Body.setTag ( DRAG_BODYS_TAG );
+				
+		var 	Ball = new cc.SpriteEx ( "res/ball.png" );
+		Ball.setScale ( Radius / ( Ball.getContentSize ( ).width * 0.5 ) );
+		Ball.setPhysicsBody ( Body );
+		Ball.setPosition ( Point );
 		
-		var 	Shape = new cp.CircleShape ( Body, Radius, cp.vzero );
-		Shape.setElasticity ( Material.Restitution );
-        Shape.setFriction ( Material.Friction );
-        this.Space.addShape ( Shape );
-            
-        var 	Ball = new cc.PhysicsSprite ( "res/ball.png" );
-        Ball.setBody ( Body );	       
-        Ball.setScale ( Radius / ( Ball.getContentSize ( ).width * 0.5 ) );
-        Ball.setPosition ( Point );
-        Ball.setTag ( DRAG_BODYS_TAG );
-		
-        return Ball;
-        */
+		return Ball;
 	},
 	
 	createBox:function ( Point, Size )
@@ -238,8 +229,7 @@ msw.BaseScene = cc.SceneEx.extend
 		
 		var 	Box = new cc.SpriteEx ( "res/YellowSquare.png" );
 		var		BoxSize = Box.getContentSize ( );	
-		Box.setScale ( Size.width / BoxSize.width, Size.height / BoxSize.height );
-		//var		Box = new cc.NodeEx ( );
+		Box.setScale ( Size.width / BoxSize.width, Size.height / BoxSize.height );		
 		Box.setPhysicsBody ( Body );
 		Box.setPosition ( Point );
 		Box.setRotation ( cc.random0To1 ( ) * 360 );

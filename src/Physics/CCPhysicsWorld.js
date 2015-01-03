@@ -38,12 +38,12 @@ cc.PhysicsWorldCallback =
 		{
 			if ( shapes [ 0 ] == map [ i ].key )
 			{
-				a = map [ i ].value;
+				a = map [ i ].value.getShape ( );
 			}
 			
 			if ( shapes [ 1 ] == map [ i ].key )
 			{
-				b = map [ i ].value;
+				b = map [ i ].value.getShape ( );
 			}	
 			
 			if ( a && b )
@@ -54,23 +54,42 @@ cc.PhysicsWorldCallback =
 				return this.collisionBeginCallback ( contact );
 			}
 		}
+		
+		cc.log ( "Error" );
+		
+		return false;
 	},
 
 	collisionPreSolveCallbackFunc:function ( arb, space )
 	{
+		if ( arb.data === undefined )
+		{
+			return true;
+		}
+		
 		return this.collisionPreSolveCallback ( arb.data );
 	},
 	
 	collisionPostSolveCallbackFunc:function ( arb, space )
 	{
-		return this.collisionPostSolveCallback ( arb.data );
+		if ( arb.data === undefined )
+		{
+			return;
+		}
+		
+		this.collisionPostSolveCallback ( arb.data );
 	},
 	
 	collisionSeparateCallbackFunc:function ( arb, space )
 	{
+		if ( arb.data === undefined )
+		{
+			return true;
+		}		
+		
 		var		contact = arb.data;		
 		this.collisionSeparateCallback ( contact );			
-		delete contact;	
+		contact = arb.data = null;
 	},
 };
 
@@ -124,7 +143,9 @@ cc.PhysicsWorld = cc.Class.extend
 			cc.PhysicsWorldCallback.collisionPreSolveCallbackFunc .bind ( this ),
 			cc.PhysicsWorldCallback.collisionPostSolveCallbackFunc.bind ( this ),
 			cc.PhysicsWorldCallback.collisionSeparateCallbackFunc .bind ( this )			
-		);	
+		);
+		
+		return true;
 	},
 
 	/** Adds a joint to the physics world.*/
@@ -556,7 +577,7 @@ cc.PhysicsWorld = cc.Class.extend
 		if ( shape != null )
 		{
 			this._info.removeShape ( shape._info );
-						
+
 			// Temporary Code
 			shape._info.removeAll ( );
 		}
@@ -565,7 +586,7 @@ cc.PhysicsWorld = cc.Class.extend
 	update:function ( delta, userCall )
 	{
 		if ( userCall === undefined )	userCall = false;
-		
+
 		while ( this._delayDirty )
 		{
 			// the updateJoints must run before the updateBodies.
@@ -605,23 +626,106 @@ cc.PhysicsWorld = cc.Class.extend
 	},
 
 	collisionBeginCallback:function ( contact )
-	{
+	{				
+		var 	ret = true;
+
+		var 	shapeA  = contact.getShapeA ( );
+		var 	shapeB  = contact.getShapeB ( );
+		var 	bodyA   = shapeA.getBody ( );
+		var 	bodyB   = shapeB.getBody ( );
 		
+		var 	jointsA = bodyA.getJoints ( );
+
+		// check the joint is collision enable or not
+		for ( var idx in jointsA )
+		{
+			var		joint = jointsA [ idx ];
+			
+			var		idx2 = this._joints.indexOf ( joint );
+			if ( idx == -1 )
+			{
+				continue;
+	        }
+	        
+	        if ( !joint.isCollisionEnabled ( ) )
+	        {
+	        	var 	body = joint.getBodyA ( ) == bodyA ? joint.getBodyB ( ) : joint.getBodyA ( );
+	            
+	            if ( body == bodyB )
+	            {
+	                contact.setNotificationEnable ( false );
+	                return false;
+	            }
+	        }
+	    }
+
+	    // bitmask check
+	    if ( ( shapeA.getCategoryBitmask ( ) & shapeB.getContactTestBitmask ( ) ) == 0 ||
+	    		( shapeA.getContactTestBitmask ( ) & shapeB.getCategoryBitmask ( ) ) == 0 )
+	    {
+	        contact.setNotificationEnable ( false );
+	    }
+	    
+	    if ( shapeA.getGroup ( ) != 0 && shapeA.getGroup ( ) == shapeB.getGroup ( ) )
+	    {
+	        ret = shapeA.getGroup ( ) > 0;
+	    }
+	    else
+	    {
+	    	if ( ( shapeA.getCategoryBitmask ( ) & shapeB.getCollisionBitmask ( ) ) == 0 ||
+	        	 ( shapeB.getCategoryBitmask ( ) & shapeA.getCollisionBitmask ( ) ) == 0 )
+	        {
+	            ret = false;
+	        }
+	    }
+	    
+	    if ( contact.isNotificationEnabled ( ) )
+	    {
+	        contact.setEventCode ( cc.PhysicsContact.EventCode.BEGIN );
+	        contact.setWorld ( this );
+//	        this._scene.getEventDispatcher ( ).dispatchEvent ( contact );
+	    }
+	    
+	    return ret ? contact.resetResult ( ) : false;	    
 	},
 	
 	collisionPreSolveCallback:function ( contact )
-	{
-		
+	{			
+		if ( !contact.isNotificationEnabled ( ) )
+		{
+			contact._contactInfo.state = 'ignore';			
+			return true;
+		}
+
+		contact.setEventCode ( cc.PhysicsContact.EventCode.PRESOLVE );
+		contact.setWorld ( this );
+//		this._scene.getEventDispatcher ( ).dispatchEvent ( contact );
+
+		return contact.resetResult ( );		
 	},
 			
 	collisionPostSolveCallback:function ( contact )
-	{
-		
+	{			
+		if ( !contact.isNotificationEnabled ( ) )
+		{
+			return;
+		}
+
+		contact.setEventCode ( cc.PhysicsContact.EventCode.POSTSOLVE );
+		contact.setWorld ( this );
+//		this._scene.getEventDispatcher ( ).dispatchEvent ( contact );		
 	},
 	
 	collisionSeparateCallback:function ( contact )
-	{
-		
+	{		
+		if ( !contact.isNotificationEnabled ( ) )
+		{
+			return;
+		}
+
+		contact.setEventCode ( cc.PhysicsContact.EventCode.SEPERATE );
+		contact.setWorld ( this );
+//		this._scene.getEventDispatcher ( ).dispatchEvent ( contact );			
 	},
 
 	doAddBody:function ( body )

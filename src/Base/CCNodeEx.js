@@ -248,6 +248,8 @@ cc.NodeEx = cc.Node.extend
 
 	setScale:function ( scale, scaleY )
 	{
+		if ( scaleY === undefined )		scaleY = scale;
+		
 		cc.Node.prototype.setRotation.call ( this, scale, scaleY );
 		
 		if ( cc.g_physicsSceneCount == 0 )

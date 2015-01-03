@@ -244,6 +244,8 @@ cc.SpriteEx = cc.Sprite.extend
 	
 	setScale:function ( scale, scaleY )
 	{
+		if ( scaleY === undefined )		scaleY = scale;
+		
 		cc.Sprite.prototype.setScale.call ( this, scale, scaleY );
 
 		if ( cc.g_physicsSceneCount == 0 )

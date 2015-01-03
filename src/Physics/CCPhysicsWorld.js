@@ -25,6 +25,55 @@
 
 cc.PHYSICS_INFINITY = Infinity;
 
+cc.PhysicsWorldCallback =
+{
+	collisionBeginCallbackFunc:function ( arb, space )
+	{
+		var		map    = cc.PhysicsShapeInfo.getMap ( );
+		var 	shapes = arb.getShapes ( );
+		var		a      = null;
+		var		b      = null; 
+		
+		for ( var i = 0; i < map.length; i++ )
+		{
+			if ( shapes [ 0 ] == map [ i ].key )
+			{
+				a = map [ i ].value;
+			}
+			
+			if ( shapes [ 1 ] == map [ i ].key )
+			{
+				b = map [ i ].value;
+			}	
+			
+			if ( a && b )
+			{
+				var		contact = new cc.PhysicsContact ( a, b );
+				arb.data = contact;
+				contact._contactInfo = arb;				
+				return this.collisionBeginCallback ( contact );
+			}
+		}
+	},
+
+	collisionPreSolveCallbackFunc:function ( arb, space )
+	{
+		return this.collisionPreSolveCallback ( arb.data );
+	},
+	
+	collisionPostSolveCallbackFunc:function ( arb, space )
+	{
+		return this.collisionPostSolveCallback ( arb.data );
+	},
+	
+	collisionSeparateCallbackFunc:function ( arb, space )
+	{
+		var		contact = arb.data;		
+		this.collisionSeparateCallback ( contact );			
+		delete contact;	
+	},
+};
+
 /**
  * @brief An PhysicsWorld object simulates collisions and other physical properties. You do not create PhysicsWorld objects directly; instead, you can get it from an Scene object.
  */
@@ -67,16 +116,15 @@ cc.PhysicsWorld = cc.Class.extend
 		
 		this._debugDraw = new cc.PhysicsDebugNode ( this._info._space );
 		this._debugDraw.setVisible ( false );
-		this._scene.addChild ( this._debugDraw, 1 );
+		this._scene.addChild ( this._debugDraw, 1 );		
 		
-/*
-		cpSpaceSetDefaultCollisionHandler(_info->getSpace(),
-				(cpCollisionBeginFunc)PhysicsWorldCallback::collisionBeginCallbackFunc,
-				(cpCollisionPreSolveFunc)PhysicsWorldCallback::collisionPreSolveCallbackFunc,
-				(cpCollisionPostSolveFunc)PhysicsWorldCallback::collisionPostSolveCallbackFunc,
-				(cpCollisionSeparateFunc)PhysicsWorldCallback::collisionSeparateCallbackFunc,
-				this);
- */				
+		this._info.getSpace ( ).setDefaultCollisionHandler 
+		(
+			cc.PhysicsWorldCallback.collisionBeginCallbackFunc	  .bind ( this ),
+			cc.PhysicsWorldCallback.collisionPreSolveCallbackFunc .bind ( this ),
+			cc.PhysicsWorldCallback.collisionPostSolveCallbackFunc.bind ( this ),
+			cc.PhysicsWorldCallback.collisionSeparateCallbackFunc .bind ( this )			
+		);	
 	},
 
 	/** Adds a joint to the physics world.*/

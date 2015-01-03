@@ -411,30 +411,73 @@ protected:
 	PhysicsJointGroove() {}
 virtual ~PhysicsJointGroove() {}
 };
-*/
+ */
 
 /** Likes a spring joint, but works with rotary */
-/*
-class CC_DLL PhysicsJointRotarySpring : public PhysicsJoint
+cc.PhysicsJointRotarySpring = cc.PhysicsJoint.extend
+({
+	ctor:function ( )
+	{
+		this._super ( );
+	},
+
+	init:function ( a, b, stiffness, damping )
+	{
+		cc.PhysicsJoint.prototype.init.call ( this, a, b );
+
+		var 	joint = new cp.DampedRotarySpring ( this.getBodyInfo ( a ).getBody ( ), this.getBodyInfo ( b ).getBody ( ), this._bodyB.getRotation ( ) - this._bodyA.getRotation ( ), stiffness, damping );				
+		if ( joint != null )
+		{
+			this._info.add ( joint );
+			return true;
+		}
+
+		return false;
+	},
+
+	getRestAngle:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.restAngle;
+	},
+
+	setRestAngle:function ( restAngle )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.restAngle = restAngle;		
+	},
+	
+	getStiffness:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.stiffness;
+	},
+
+	setStiffness:function ( stiffness )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.stiffness = stiffness;		
+	},
+	
+	getDamping:function ( ) 
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		return joint.damping;
+	},
+
+	setDamping:function ( damping )
+	{
+		var		joint = this._info.getJoints ( ) [ 0 ];
+		joint.damping = damping;		
+	},	
+});
+
+cc.PhysicsJointRotarySpring.create = function ( a, b, stiffness, damping )
 {
-	public:
-		static PhysicsJointRotarySpring* construct(PhysicsBody* a, PhysicsBody* b, float stiffness, float damping);
-
-float getRestAngle() const;
-void setRestAngle(float restAngle);
-float getStiffness() const;
-void setStiffness(float stiffness);
-float getDamping() const;
-void setDamping(float damping);
-
-protected:
-	bool init(PhysicsBody* a, PhysicsBody* b, float stiffness, float damping);
-
-protected:
-	PhysicsJointRotarySpring() {}
-virtual ~PhysicsJointRotarySpring() {}
+	var		Joint = new cc.PhysicsJointRotarySpring ( );
+	Joint.init ( a, b, stiffness, damping );
+	return Joint;	
 };
-*/
 
 /** Likes a limit joint, but works with rotary */
 /*

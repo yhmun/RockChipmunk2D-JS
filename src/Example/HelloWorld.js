@@ -1,6 +1,6 @@
 /** ----------------------------------------------------------------------------------
  *
- *      File            Basic.js
+ *      File            HelloWorld.js
  *      Ported By       Young-Hwan Mun
  *      Contact         yh.msw9@gmail.com
  * 
@@ -30,32 +30,51 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
-msw.Basic = msw.BaseScene.extend 
+msw.HelloWorld = msw.BaseDemo.extend  
 ({
 	ctor:function ( ) 
 	{
 		this._super ( );
-				
-		this.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+		
+		var 	size   = VisibleRect.size ( );
+		var		margin = cc.size ( 50, 200 );
+		size.width  -= margin.width * 2;
+		size.height -= margin.height + 100;
 		
 		for ( var i = 0; i < 10; i++ )
 		{
 			var		Box = this.createBox 
 			(
-				cc.p ( cc.random0To1 ( ) * ( SCR_W - 50 ), cc.random0To1 ( ) * ( SCR_H - 100 ) + 100 ),
+				cp.v.add ( VisibleRect.leftBottom ( ), cc.p ( margin.width + cc.random0To1 ( ) * size.width, margin.height + cc.random0To1 ( ) * size.height ) ),
 				cc.size ( 30 + cc.random0To1 ( ) * 50, 100 + cc.random0To1 ( ) * 50 ) 
 			);
-			this.addChild ( Box );
-		}	
+			this.addChildEx ( Box );
+		}					
 	},
-	
+
 	demo_info:function ( )
 	{
-		return "01 Basic Test";
+		return "01 Hello World";
 	},
 	
-	restart:function ( Sender )
+	restartCallback:function ( sender )
 	{
-		cc.director.runScene ( new msw.Basic ( ) );
-	},
+		var		scene = msw.HelloWorld.createScene ( );
+		cc.director.runScene ( scene );
+	},	
 });
+
+msw.HelloWorld.createScene = function ( )
+{
+    var 	scene = new cc.Scene ( );
+    
+    scene.initWithPhysics ( );
+    scene.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
+    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+    
+    var		layer = new msw.HelloWorld ( );
+    layer.setPhysicWorld ( scene.getPhysicsWorld ( ) );
+    scene.addChild ( layer );
+
+    return scene;
+};

@@ -42,7 +42,7 @@ msw.rand = function ( )
 cc.game.onStart = function ( )
 {
 	cc.view.adjustViewPort ( true );
-	cc.view.setDesignResolutionSize ( 960, 640, cc.ResolutionPolicy.EXACT_FIT );
+	cc.view.setDesignResolutionSize ( 960, 640, cc.ResolutionPolicy.NO_BORDER );
 	cc.view.resizeWithBrowserSize ( true );
 
 	cc.LoaderScene.preload ( msw.RESOURCES, function ( ) 

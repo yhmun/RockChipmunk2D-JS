@@ -32,8 +32,8 @@
 
 msw.Demos = 
 [
-	{ Name : "01 Basic"					, Scene:function ( ) { return new msw.Basic 				( ); } },	
-	{ Name : "02 RollingBall"			, Scene:function ( ) { return new msw.RollingBall 			( ); } },	
+	{ Name : "01 Basic"					, Scene:function ( ) { return msw.HelloWorld	.createScene ( ) } },	
+	{ Name : "02 RollingBall"			, Scene:function ( ) { return msw.RollingBall 	.createScene ( ) } },	
 	{ Name : "03 PinJoint"				, Scene:function ( ) { return new msw.PinJoint 				( ); } },	
 	{ Name : "04 SlideJoint"			, Scene:function ( ) { return new msw.SlideJoint 			( ); } },	
 	{ Name : "05 SpringJoint"			, Scene:function ( ) { return new msw.SpringJoint 			( ); } },	

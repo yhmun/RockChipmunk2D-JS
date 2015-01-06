@@ -27,8 +27,8 @@
         "src/GLNode/GLNode.js",
         "src/PRKit/PRFilledPolygon.js",
         "src/PRKit/Triangulate.js",
-        "src/Example/BaseScene.js",
-        "src/Example/Hello.js",
+        "src/BaseDemo.js",
+        "src/Example/HelloWorld.js",
         "src/Example/RollingBall.js",
         "src/Example/PinJoint.js",
         "src/Example/SlideJoint.js",
@@ -42,6 +42,7 @@
         "src/Example/PRKitDemo.js",
         "src/Example/FruitCutNinja.js",
         "src/Example/PhysicsLineDrawTest.js",
+        "src/VisibleRect.js",
         "src/IntroScene.js",
         "src/ContentScene.js",
         "src/Resource.js"

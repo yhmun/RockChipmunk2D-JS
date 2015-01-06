@@ -30,11 +30,13 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
-msw.SimplePlatformer = cc.Scene.extend 
+msw.SimplePlatformer = msw.BaseScene.extend 
 ({
 	ctor:function ( ) 
 	{
 		this._super ( );
+		
+		this.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
 
 		var		BG = new cc.LayerColor ( cc.color ( 128, 128, 128, 128 ) );
 		this.addChild ( BG );

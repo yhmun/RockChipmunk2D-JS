@@ -81,7 +81,6 @@ msw.BaseDemo = cc.LayerGradient.extend
 			return;
 			
 		}
-		
 		var 	size = VisibleRect.size ( );
 		
 		// Initialize Physics

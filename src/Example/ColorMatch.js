@@ -30,15 +30,17 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
-WALL_ORIGIN		= cc.p ( 124, 99 );
-WALL_SIZE		= cc.size ( 720, 560 );
-BALL_TAG 		= 1;
+WALL_ORIGIN	= cc.p ( 124, 99 );
+WALL_SIZE	= cc.size ( 720, 560 );
+BALL_TAG 	= 1;
 
 msw.ColorMatch = msw.BaseDemo.extend  
 ({
 	onEnter:function ( ) 
 	{
 		this._super ( );	
+		
+		this.removeChildEx ( this._wallNode );
 		
 		var		bg = new cc.Sprite ( "res/ColorMatch/bg.png" );
 		bg.setPosition ( VisibleRect.center ( ) );
@@ -61,7 +63,9 @@ msw.ColorMatch = msw.BaseDemo.extend
 		this.addChildEx ( wall_node );
 		
 		this._ticks = 0;
-		this._balls = new Array ( );		
+		this._balls = new Array ( );	
+		
+		this.scheduleUpdate ( );
 	},
 
 	demo_info:function ( )
@@ -73,6 +77,84 @@ msw.ColorMatch = msw.BaseDemo.extend
 	{
 		var		scene = msw.ColorMatch.createScene ( );
 		cc.director.runScene ( scene );
+	},	
+	
+	addBall:function ( )
+	{
+		var 	ball = new msw.Ball ( );
+		this.addChildEx ( ball );
+		ball.setTag ( BALL_TAG );
+
+		var 	bornPosX = cc.random0To1 ( ) * ( WALL_SIZE.width - ball.getRadius ( ) * 2 ) + WALL_ORIGIN.x + ball.getRadius ( );
+		ball.setPosition ( bornPosX, 660 );
+		this._balls.push ( ball );
+
+		return ball;
+	},
+
+	removeBall:function ( ball )
+	{
+		this.removeChildEx ( ball );
+	
+//		ParticleSystem *particle = ParticleSystemQuad::create("pop.plist");
+//		particle->setPosition(ball->getPosition());
+//		particle->setAutoRemoveOnFinish(true);
+//		this->addChild(particle, 10);
+
+		this._balls.splice ( this._balls.indexOf ( ball ), 1 );
+
+		cc.audioEngine.playEffect ( "res/ColorMatch/pop.wav" );		
+	},	
+	
+	onTouchBegan:function ( touch, event )
+	{
+		var 	location = touch.getLocation ( );
+		var 	shape = this._world.getShape ( location );
+		if ( shape )
+		{			
+			var 	ball = shape.getBody ( ).getNode ( );
+			if ( ball.getTag ( ) == BALL_TAG )
+			{
+				this.removeBall ( ball );
+			}			
+		}
+
+		return true;
+	},
+	
+	update:function ( delta )
+	{
+		this._super ( delta );
+
+		if ( this._ticks % 6 == 0 && this._balls.length < 70 )
+		{
+			this.addBall ( );
+		}
+
+		for ( var i = 0; i < this._balls.length; )
+		{
+			var		ball = this._balls [ i ];
+			var 	root = ball.getRoot ( );
+
+			ball.linkCountLabel.setString ( root.getLinkCount ( ) );
+			if ( root.getLinkCount ( ) >= 4 )
+			{
+				this.removeBall ( ball );
+				cc.audioEngine.playEffect ( "res/ColorMatch/ploop.wav" );	
+				continue;
+			}
+
+			i++;
+		}
+
+		for( var idx in this._balls )
+		{
+			var		ball = this._balls [ idx ];
+			ball.setLinkCount ( 1 );
+			ball.setRoot ( ball );
+		}
+
+		this._ticks++;
 	},	
 });
 
@@ -91,7 +173,6 @@ msw.ColorMatch.createScene = function ( )
     return scene;
 };
 
-/*
 msw.Ball = cc.Sprite.extend 
 ({
 	ctor:function ( )
@@ -103,8 +184,7 @@ msw.Ball = cc.Sprite.extend
 		this._radius 	= msw.rand ( ) % 10 + 30;
 		
 		this._super ( "res/ColorMatch/ball_" + this._ballColor + ".png" );  
-		
-		
+				
 		var 	ball_body = cc.PhysicsBody.createCircle ( this._radius, cc.PhysicsMaterial ( 1, 0.5, 0.2 ) );
 		ball_body.setCategoryBitmask ( 0x0001 );
 		ball_body.setContactTestBitmask ( 0x0001 );
@@ -168,153 +248,3 @@ msw.Ball = cc.Sprite.extend
 		this._linkCount = linkCount;
 	}
 });
-
-
-
-msw.ColorMatch = cc.Scene.extend 
-({
-	ctor:function ( ) 
-	{
-		this._super ( );
-		
-		this.initWithPhysics ( );
-		
-		this.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -400 ) );	   
-		this.DebugDraw = true;
-		this.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
-
-
-
-
-
-		var		Back = new cc.MenuItemImage ( "res/backNormal.png", "res/backSelected.png", this.back, this );
-		var		Restart = new cc.MenuItemImage ( "res/refreshNormal.png", "res/refreshSelected.png", this.restart, this );
-				
-		cc.MenuItemFont.setFontSize ( 18 );
-		var		ToggleDebug = new cc.MenuItemFont ( "Toggle debug", this.toggleDebug, this );
-
-		Back.setPosition ( SCR_W - 110, SCR_H - 80 );
-		Restart.setPosition ( SCR_W - 200, SCR_H - 80 );		
-		ToggleDebug.setPosition ( SCR_W - 50, SCR_H - 10 );
-
-		var		Menu = new cc.Menu ( Back, Restart, ToggleDebug );
-		Menu.setPosition ( 0, 0 );
-		this.addChild ( Menu, 10 );		    
-	    
-		cc.eventManager.addListener 
-		({
-			event : cc.EventListener.TOUCH_ONE_BY_ONE,
-			swallowTouches : true,
-			onTouchBegan : this.onTouchBegan.bind ( this )
-		}, this );		
-		
-
-		
-	    //auto contactListener = EventListenerPhysicsContact::create();
-	    //contactListener->onContactBegin = CC_CALLBACK_1(ColorMatchScene::onContactBegin, this);
-	    //contactListener->onContactPreSolve = CC_CALLBACK_2(ColorMatchScene::onContactPreSolve, this);
-	    //_eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
-	    
-	},
-	
-	addBall:function ( )
-	{
-		var 	ball = new msw.Ball ( );
-		this.addChild ( ball );
-		ball.setTag ( BALL_TAG );
-
-		var 	bornPosX = cc.random0To1 ( ) * ( WALL_SIZE.width - ball.getRadius ( ) * 2 ) + WALL_ORIGIN.x + ball.getRadius ( );
-		ball.setPosition ( bornPosX, 660 );
-		this._balls.push ( ball );
-
-		return ball;
-	},
-
-	removeBall:function ( ball )
-	{
-		ball.removeFromParentAndCleanup ( true );
-
-//		ParticleSystem *particle = ParticleSystemQuad::create("pop.plist");
-//		particle->setPosition(ball->getPosition());
-//		particle->setAutoRemoveOnFinish(true);
-//		this->addChild(particle, 10);
-
-		this._balls.splice ( this._balls.indexOf ( ball ), 1 );
-	
-		cc.audioEngine.playEffect ( "res/ColorMatch/pop.wav" );		
-	},
-	
-	update:function ( delta )
-	{
-		this._super ( delta );
-		
-		if ( this._ticks % 6 == 0 && this._balls.length < 70 )
-		{
-			this.addBall ( );
-		}
-		
-		for ( var i = 0; i < this._balls.length; )
-		{
-			var		ball = this._balls [ i ];
-			var 	root = ball.getRoot ( );
-			
-			ball.linkCountLabel.setString ( root.getLinkCount ( ) );
-			if ( root.getLinkCount ( ) >= 4 )
-			{
-				this.removeBall ( ball );
-				cc.audioEngine.playEffect ( "res/ColorMatch/ploop.wav" );	
-				continue;
-			}
-			
-			i++;
-		}
-
-		for( var idx in this._balls )
-		{
-			var		ball = this._balls [ idx ];
-			ball.setLinkCount ( 1 );
-			ball.setRoot ( ball );
-		}
-		
-		this._ticks++;
-	},
-	
-	setTouchEnabled:function ( Enable )
-	{
-		this.IsTouchEnable = Enable;
-	},
-
-	onTouchBegan:function ( Touch, Event )
-	{
-		var 	location = Touch.getLocation ( );
-		var 	shape = this.getPhysicsWorld ( ).getShape ( location );
-		if ( shape )
-		{			
-			var 	ball = shape.getBody ( ).getNode ( );
-			if ( ball.getTag ( ) == BALL_TAG )
-			{
-				this.removeBall ( ball );
-			}			
-		}
-		
-		return true;
-	},	
-
-	back:function ( Sender )
-	{
-		cc.director.runScene ( new msw.ContentScene ( ) );
-	},
-
-	restart:function ( Sender )
-	{
-		cc.director.runScene ( new msw.ColorMatch ( ) );		
-	},	
-
-	toggleDebug:function ( Sender )
-	{
-		this.DebugDraw = !this.DebugDraw;	
-		this.getPhysicsWorld ( ).setDebugDrawMask ( this.DebugDraw ? cc.PhysicsWorld.DEBUGDRAW_ALL : cc.PhysicsWorld.DEBUGDRAW_NONE );
-	},		
-});
-
-*/

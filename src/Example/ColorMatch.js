@@ -30,11 +30,38 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
+WALL_ORIGIN		= cc.p ( 124, 99 );
+WALL_SIZE		= cc.size ( 720, 560 );
+BALL_TAG 		= 1;
+
 msw.ColorMatch = msw.BaseDemo.extend  
 ({
 	onEnter:function ( ) 
 	{
-		this._super ( );				
+		this._super ( );	
+		
+		var		bg = new cc.Sprite ( "res/ColorMatch/bg.png" );
+		bg.setPosition ( VisibleRect.center ( ) );
+		this.addChild ( bg );	
+		
+		WALL_ORIGIN.x += VisibleRect.center ( ).x - bg.getContentSize ( ).width  / 2;
+		WALL_ORIGIN.y += VisibleRect.center ( ).y - bg.getContentSize ( ).height / 2;
+		
+		var 	wall_body = cc.PhysicsBody.create ( );
+		var 	l_shape = cc.PhysicsShapeEdgeSegment.create ( WALL_ORIGIN, cp.v.add ( WALL_ORIGIN, cc.p ( 0, WALL_SIZE.height ) ) );
+		var 	b_shape = cc.PhysicsShapeEdgeSegment.create ( WALL_ORIGIN, cp.v.add ( WALL_ORIGIN, cc.p ( WALL_SIZE.width, 0 ) ) );
+		var 	r_shape = cc.PhysicsShapeEdgeSegment.create ( cp.v.add ( WALL_ORIGIN, cc.p ( WALL_SIZE.width, 0 ) ), cp.v.add ( WALL_ORIGIN, cc.p ( WALL_SIZE.width, WALL_SIZE.height ) ) );
+		wall_body.addShape ( l_shape );
+		wall_body.addShape ( b_shape );
+		wall_body.addShape ( r_shape );
+		wall_body.setDynamic ( false );
+		
+		var 	wall_node = new cc.Node ( );
+		wall_node.setPhysicsBody ( wall_body );
+		this.addChildEx ( wall_node );
+		
+		this._ticks = 0;
+		this._balls = new Array ( );		
 	},
 
 	demo_info:function ( )
@@ -55,7 +82,7 @@ msw.ColorMatch.createScene = function ( )
     
     scene.initWithPhysics ( );
     scene.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
-    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -400 ) );
     
     var		layer = new msw.ColorMatch ( );
     layer.setPhysicWorld ( scene.getPhysicsWorld ( ) );
@@ -142,9 +169,7 @@ msw.Ball = cc.Sprite.extend
 	}
 });
 
-WALL_ORIGIN		= cc.p ( 124, 99 );
-WALL_SIZE		= cc.size ( 720, 560 );
-BALL_TAG 		= 1;
+
 
 msw.ColorMatch = cc.Scene.extend 
 ({
@@ -158,22 +183,9 @@ msw.ColorMatch = cc.Scene.extend
 		this.DebugDraw = true;
 		this.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
 
-		var		bg = new cc.Sprite ( "res/ColorMatch/bg.png" );
-		bg.setPosition ( SCR_W2, SCR_H2 );
-		this.addChild ( bg );
 
-		var 	wall_body = cc.PhysicsBody.create ( );
-		var 	l_shape = cc.PhysicsShapeEdgeSegment.create ( WALL_ORIGIN, cp.v.add ( WALL_ORIGIN, cc.p ( 0, WALL_SIZE.height ) ) );
-		var 	b_shape = cc.PhysicsShapeEdgeSegment.create ( WALL_ORIGIN, cp.v.add ( WALL_ORIGIN, cc.p ( WALL_SIZE.width, 0 ) ) );
-		var 	r_shape = cc.PhysicsShapeEdgeSegment.create ( cp.v.add ( WALL_ORIGIN, cc.p ( WALL_SIZE.width, 0 ) ), cp.v.add ( WALL_ORIGIN, cc.p ( WALL_SIZE.width, WALL_SIZE.height ) ) );
-		wall_body.addShape ( l_shape );
-		wall_body.addShape ( b_shape );
-		wall_body.addShape ( r_shape );
-		wall_body.setDynamic ( false );
 
-		var 	wall_node = new cc.Node ( );
-		wall_node.setPhysicsBody ( wall_body );
-		this.addChild ( wall_node );
+
 
 		var		Back = new cc.MenuItemImage ( "res/backNormal.png", "res/backSelected.png", this.back, this );
 		var		Restart = new cc.MenuItemImage ( "res/refreshNormal.png", "res/refreshSelected.png", this.restart, this );
@@ -196,8 +208,7 @@ msw.ColorMatch = cc.Scene.extend
 			onTouchBegan : this.onTouchBegan.bind ( this )
 		}, this );		
 		
-		this._ticks = 0;
-		this._balls = new Array ( );
+
 		
 	    //auto contactListener = EventListenerPhysicsContact::create();
 	    //contactListener->onContactBegin = CC_CALLBACK_1(ColorMatchScene::onContactBegin, this);

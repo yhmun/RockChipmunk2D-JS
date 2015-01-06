@@ -4,8 +4,8 @@ RockChipmunk2D-JS
 - Version 0.1 ( Currently working source code )
 
 # Demo
-- [Demo](http://msw9.com/contents/RockChipmunk/)
-- [Full Screen](http://msw9.com/contents/RockChipmunk/main.html)
+- [Demo](http://msw9.com/contents/RockChipmunk2D/)
+- [Full Screen](http://msw9.com/contents/RockChipmunk2D/main.html)
 - [Homepage : http://msw9.com](http://msw9.com)
 - [Blog : http://blog.msw9.com](http://blog.msw9.com)
 

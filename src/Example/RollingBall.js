@@ -74,7 +74,7 @@ var		flip = false;
 
 msw.RollingBall = msw.BaseDemo.extend 
 ({
-	ctor:function ( ) 
+	onEnter:function ( ) 
 	{
 		this._super ( );
 	
@@ -111,7 +111,7 @@ msw.RollingBall = msw.BaseDemo.extend
 		return "02 Rolling Ball";
 	},
 	
-	restartCallback:function ( Sender )
+	restartCallback:function ( sender )
 	{
 		cc.director.runScene ( msw.RollingBall.createScene ( ) );
 	},

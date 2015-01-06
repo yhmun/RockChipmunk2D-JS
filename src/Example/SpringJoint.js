@@ -30,6 +30,40 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
+msw.SpringJoint = msw.BaseDemo.extend  
+({
+	onEnter:function ( ) 
+	{
+		this._super ( );				
+	},
+
+	demo_info:function ( )
+	{
+		return "05 Spring Joint";
+	},
+	
+	restartCallback:function ( sender )
+	{
+		var		scene = msw.SpringJoint.createScene ( );
+		cc.director.runScene ( scene );
+	},	
+});
+
+msw.SpringJoint.createScene = function ( )
+{
+    var 	scene = new cc.Scene ( );
+    
+    scene.initWithPhysics ( );
+    scene.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
+    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+    
+    var		layer = new msw.SpringJoint ( );
+    layer.setPhysicWorld ( scene.getPhysicsWorld ( ) );
+    scene.addChild ( layer );
+
+    return scene;
+};
+/*
 ARROUND_BALLS_NUM 	  = 16;
 ARROUND_BALLS_RADIUS  = 4.0;
 CENTER_BALL_POS 	  = cc.p ( 200, 200 );
@@ -118,3 +152,4 @@ msw.SpringJoint = msw.BaseScene.extend
 		cc.director.runScene ( new msw.SpringJoint ( ) );
 	},	
 });
+*/

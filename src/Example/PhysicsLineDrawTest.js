@@ -30,13 +30,36 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
-msw.PhysicsLineDrawTest = cc.Scene.extend 
+msw.PhysicsLineDrawTest = msw.BaseDemo.extend  
 ({
-	ctor:function ( ) 
+	onEnter:function ( ) 
 	{
-		this._super ( );
-
-		var		BG = new cc.LayerColor ( cc.color ( 128, 128, 128, 128 ) );
-		this.addChild ( BG );
+		this._super ( );				
 	},
+
+	demo_info:function ( )
+	{
+		return "14 Physics Line Draw Test";
+	},
+	
+	restartCallback:function ( sender )
+	{
+		var		scene = msw.PhysicsLineDrawTest.createScene ( );
+		cc.director.runScene ( scene );
+	},	
 });
+
+msw.PhysicsLineDrawTest.createScene = function ( )
+{
+    var 	scene = new cc.Scene ( );
+    
+    scene.initWithPhysics ( );
+    scene.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
+    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+    
+    var		layer = new msw.PhysicsLineDrawTest ( );
+    layer.setPhysicWorld ( scene.getPhysicsWorld ( ) );
+    scene.addChild ( layer );
+
+    return scene;
+};

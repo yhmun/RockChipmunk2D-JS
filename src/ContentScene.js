@@ -32,20 +32,20 @@
 
 msw.Demos = 
 [
-	{ Name : "01 Basic"					, Scene:function ( ) { return msw.HelloWorld	.createScene ( ) } },	
-	{ Name : "02 RollingBall"			, Scene:function ( ) { return msw.RollingBall 	.createScene ( ) } },	
-	{ Name : "03 PinJoint"				, Scene:function ( ) { return new msw.PinJoint 				( ); } },	
-	{ Name : "04 SlideJoint"			, Scene:function ( ) { return new msw.SlideJoint 			( ); } },	
-	{ Name : "05 SpringJoint"			, Scene:function ( ) { return new msw.SpringJoint 			( ); } },	
-	{ Name : "06 PivotJoint"			, Scene:function ( ) { return new msw.PivotJoint 			( ); } },	
-	{ Name : "07 ContactFilter"			, Scene:function ( ) { return new msw.ContactFilter 		( ); } },	
-	{ Name : "08 ColorMatch"			, Scene:function ( ) { return new msw.ColorMatch 			( ); } },	
-	{ Name : "09 SimplePlatformer"		, Scene:function ( ) { return new msw.SimplePlatformer 		( ); } },	
-	{ Name : "10 PointQuery"			, Scene:function ( ) { return new msw.PointQuery 			( ); } },	
-	{ Name : "11 HitMe"					, Scene:function ( ) { return new msw.HitMe 				( ); } },	
-	{ Name : "12 PRKitDemo"				, Scene:function ( ) { return new msw.PRKitDemo 			( ); } },	
-	{ Name : "13 FruitCutNinja"			, Scene:function ( ) { return new msw.FruitCutNinja 		( ); } },	
-	{ Name : "14 PhysicsLineDrawTest"	, Scene:function ( ) { return new msw.PhysicsLineDrawTest 	( ); } },	
+	{ Name : "01 Basic"					, Scene:function ( ) { return msw.HelloWorld		 .createScene ( ) } },	
+	{ Name : "02 RollingBall"			, Scene:function ( ) { return msw.RollingBall 		 .createScene ( ) } },	
+	{ Name : "03 PinJoint"				, Scene:function ( ) { return msw.PinJoint 			 .createScene ( ) } },	
+	{ Name : "04 SlideJoint"			, Scene:function ( ) { return msw.SlideJoint 		 .createScene ( ) } },	
+	{ Name : "05 SpringJoint"			, Scene:function ( ) { return msw.SpringJoint 		 .createScene ( ) } },	
+	{ Name : "06 PivotJoint"			, Scene:function ( ) { return msw.PivotJoint 		 .createScene ( ) } },	
+	{ Name : "07 ContactFilter"			, Scene:function ( ) { return msw.ContactFilter 	 .createScene ( ) } },	
+	{ Name : "08 ColorMatch"			, Scene:function ( ) { return msw.ColorMatch 		 .createScene ( ) } },	
+	{ Name : "09 SimplePlatformer"		, Scene:function ( ) { return msw.SimplePlatformer 	 .createScene ( ) } },	
+	{ Name : "10 PointQuery"			, Scene:function ( ) { return msw.PointQuery 		 .createScene ( ) } },	
+	{ Name : "11 HitMe"					, Scene:function ( ) { return msw.HitMe 			 .createScene ( ) } },	
+	{ Name : "12 PRKitDemo"				, Scene:function ( ) { return msw.PRKitDemo 		 .createScene ( ) } },	
+	{ Name : "13 FruitCutNinja"			, Scene:function ( ) { return msw.FruitCutNinja		 .createScene ( ) } },	
+	{ Name : "14 PhysicsLineDrawTest"	, Scene:function ( ) { return msw.PhysicsLineDrawTest.createScene ( ) } },	
 ];
 
 msw.ContentScene = cc.Scene.extend 

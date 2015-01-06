@@ -30,6 +30,41 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
+msw.ColorMatch = msw.BaseDemo.extend  
+({
+	onEnter:function ( ) 
+	{
+		this._super ( );				
+	},
+
+	demo_info:function ( )
+	{
+		return "08 Color Match";
+	},
+	
+	restartCallback:function ( sender )
+	{
+		var		scene = msw.ColorMatch.createScene ( );
+		cc.director.runScene ( scene );
+	},	
+});
+
+msw.ColorMatch.createScene = function ( )
+{
+    var 	scene = new cc.Scene ( );
+    
+    scene.initWithPhysics ( );
+    scene.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
+    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+    
+    var		layer = new msw.ColorMatch ( );
+    layer.setPhysicWorld ( scene.getPhysicsWorld ( ) );
+    scene.addChild ( layer );
+
+    return scene;
+};
+
+/*
 msw.Ball = cc.Sprite.extend 
 ({
 	ctor:function ( )
@@ -163,12 +198,12 @@ msw.ColorMatch = cc.Scene.extend
 		
 		this._ticks = 0;
 		this._balls = new Array ( );
-		/*
-	    auto contactListener = EventListenerPhysicsContact::create();
-	    contactListener->onContactBegin = CC_CALLBACK_1(ColorMatchScene::onContactBegin, this);
-	    contactListener->onContactPreSolve = CC_CALLBACK_2(ColorMatchScene::onContactPreSolve, this);
-	    _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
-	    */
+		
+	    //auto contactListener = EventListenerPhysicsContact::create();
+	    //contactListener->onContactBegin = CC_CALLBACK_1(ColorMatchScene::onContactBegin, this);
+	    //contactListener->onContactPreSolve = CC_CALLBACK_2(ColorMatchScene::onContactPreSolve, this);
+	    //_eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
+	    
 	},
 	
 	addBall:function ( )
@@ -270,3 +305,5 @@ msw.ColorMatch = cc.Scene.extend
 		this.getPhysicsWorld ( ).setDebugDrawMask ( this.DebugDraw ? cc.PhysicsWorld.DEBUGDRAW_ALL : cc.PhysicsWorld.DEBUGDRAW_NONE );
 	},		
 });
+
+*/

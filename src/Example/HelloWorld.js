@@ -32,7 +32,7 @@
 
 msw.HelloWorld = msw.BaseDemo.extend  
 ({
-	ctor:function ( ) 
+	onEnter:function ( ) 
 	{
 		this._super ( );
 		

@@ -30,6 +30,41 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
+msw.PivotJoint = msw.BaseDemo.extend  
+({
+	onEnter:function ( ) 
+	{
+		this._super ( );				
+	},
+
+	demo_info:function ( )
+	{
+		return "06 Pivot Joint";
+	},
+	
+	restartCallback:function ( sender )
+	{
+		var		scene = msw.PivotJoint.createScene ( );
+		cc.director.runScene ( scene );
+	},	
+});
+
+msw.PivotJoint.createScene = function ( )
+{
+    var 	scene = new cc.Scene ( );
+    
+    scene.initWithPhysics ( );
+    scene.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
+    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+    
+    var		layer = new msw.PivotJoint ( );
+    layer.setPhysicWorld ( scene.getPhysicsWorld ( ) );
+    scene.addChild ( layer );
+
+    return scene;
+};
+
+/*
 BAMBOO_SEGMENTS_NUM = 11;
 BAMBOO_SEGMENT_SIZE = cc.size ( 80, 20 );
 
@@ -102,3 +137,4 @@ msw.PivotJoint = msw.BaseScene.extend
 		cc.director.runScene ( new msw.PivotJoint ( ) );
 	},	
 });
+*/

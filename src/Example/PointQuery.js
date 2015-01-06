@@ -30,35 +30,36 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
-cc.Test = cc.DrawNode.extend
+msw.PointQuery = msw.BaseDemo.extend  
 ({
-	ctor: function ()
+	onEnter:function ( ) 
 	{
-		cc.DrawNode.prototype.ctor.call(this);
-		//this.space = space;
+		this._super ( );				
+	},
+
+	demo_info:function ( )
+	{
+		return "10 Point Query";
 	},
 	
-	draw:function (context) {
-
-		cc.log ( "test" );
-		cc.DrawNode.prototype.visit.call(this);
-		
+	restartCallback:function ( sender )
+	{
+		var		scene = msw.PointQuery.createScene ( );
+		cc.director.runScene ( scene );
 	},	
 });
 
-msw.PointQuery = cc.Scene.extend 
-({
-	ctor:function ( ) 
-	{
-		this._super ( );
+msw.PointQuery.createScene = function ( )
+{
+    var 	scene = new cc.Scene ( );
+    
+    scene.initWithPhysics ( );
+    scene.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
+    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+    
+    var		layer = new msw.PointQuery ( );
+    layer.setPhysicWorld ( scene.getPhysicsWorld ( ) );
+    scene.addChild ( layer );
 
-		var		BG = new cc.LayerColor ( cc.color ( 128, 128, 128, 128 ) );
-		this.addChild ( BG );
-		
-		this.space = new cp.Space();
-
-		var		test = new cc.Test ( this.space );
-		this.addChild ( test ); 		
-	},
-});
-
+    return scene;
+};

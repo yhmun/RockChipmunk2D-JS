@@ -30,6 +30,41 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
+msw.ContactFilter = msw.BaseDemo.extend  
+({
+	onEnter:function ( ) 
+	{
+		this._super ( );				
+	},
+
+	demo_info:function ( )
+	{
+		return "07 Contact Filter";
+	},
+	
+	restartCallback:function ( sender )
+	{
+		var		scene = msw.ContactFilter.createScene ( );
+		cc.director.runScene ( scene );
+	},	
+});
+
+msw.ContactFilter.createScene = function ( )
+{
+    var 	scene = new cc.Scene ( );
+    
+    scene.initWithPhysics ( );
+    scene.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
+    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+    
+    var		layer = new msw.ContactFilter ( );
+    layer.setPhysicWorld ( scene.getPhysicsWorld ( ) );
+    scene.addChild ( layer );
+
+    return scene;
+};
+
+/*
 msw.ContactFilter = msw.BaseScene.extend 
 ({
 	ctor:function ( ) 
@@ -75,7 +110,7 @@ msw.ContactFilter = msw.BaseScene.extend
 	    contactListener->onContactPostSolve = CC_CALLBACK_2(ContactFilterScene::onContactPostSolve, this);
 	    contactListener->onContactSeperate = CC_CALLBACK_1(ContactFilterScene::onContactSeperate, this);
 	    _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
-*/	    
+    
 	},
 	
 	demo_info:function ( )
@@ -88,3 +123,4 @@ msw.ContactFilter = msw.BaseScene.extend
 		cc.director.runScene ( new msw.ContactFilter ( ) );
 	},	
 });
+*/

@@ -25,8 +25,15 @@
 
 cc.PHYSICS_INFINITY = Infinity;
 
+cc.PhysicsRayCastInfo = function ( _shape, _start, _end, _contact, _normal, _fraction )
+{
+	return { shape : _shape, start : _start, end : _end, contact : _contact, normal : _normal, fraction : _fraction }; 
+};
+
 cc.PhysicsWorldCallback =
 {
+	continues : false,
+	
 	collisionBeginCallbackFunc:function ( arb, space )
 	{
 		var		map    = cc.PhysicsShapeInfo.getMap ( );
@@ -93,6 +100,8 @@ cc.PhysicsWorldCallback =
 	},
 };
 
+cc.PhysicsWorldCallback.continues = true;
+
 /**
  * @brief An PhysicsWorld object simulates collisions and other physical properties. You do not create PhysicsWorld objects directly; instead, you can get it from an Scene object.
  */
@@ -136,6 +145,9 @@ cc.PhysicsWorld = cc.Class.extend
 		this._debugDraw = new cc.PhysicsDebugNode ( this._info._space );
 		this._debugDraw.setVisible ( false );
 		this._scene.addChild ( this._debugDraw, 1 );	
+		
+		// Temporary Code
+		return true;
 		
 		this._info.getSpace ( ).setDefaultCollisionHandler 
 		(
@@ -268,7 +280,7 @@ cc.PhysicsWorld = cc.Class.extend
 			for ( var idx in body._joints )
 			{
 				var		joint = body._joints [ idx ];
-				
+
 				// set destroy param to false to keep the iterator available
 				this.removeJoint ( joint, false );
 
@@ -288,7 +300,7 @@ cc.PhysicsWorld = cc.Class.extend
 			}
 
 			body._joints.splice ( 0, body._joints.length );
-					
+
 			this.removeBodyOrDelay ( body );						
 			this._bodies.splice ( this._bodies.indexOf ( body ), 1 );				
 			body._world = null;
@@ -325,7 +337,40 @@ cc.PhysicsWorld = cc.Class.extend
 	/** Searches for physics shapes that intersects the ray. */
 	rayCast:function ( func, start, end, data )
 	{
+		cc.assert ( func != null, "func shouldn't be nullptr" );
+		
+		var		self = this;
 
+		if ( func != null )
+		{
+			cc.PhysicsWorldCallback.continues = true;
+			this._info._space.segmentQuery ( start, end, cp.ALL_LAYERS, cp.NO_GROUP, function ( shape, t, n ) 
+			{
+				if ( !cc.PhysicsWorldCallback.continues )
+				{
+					return;
+				}
+				
+				if ( shape.userdata != null )
+				{									
+					var		callbackInfo = cc.PhysicsRayCastInfo 
+					(
+						shape.userdata.getShape ( ),
+						start,
+						end,
+						cp.v ( start.x + ( end.x - start.x ) * t, start.y + ( end.y - start.y ) * t ),
+						cp.v ( n.x, n.y ),
+						t
+					);
+					
+					cc.PhysicsWorldCallback.continues = func ( self, callbackInfo, data );					
+				}
+				else 
+				{
+					cc.assert ( false, "Error" );	
+				}							
+			});			
+		}
 	},
 
 	/** Searches for physics shapes that contains in the rect. */
@@ -432,7 +477,7 @@ cc.PhysicsWorld = cc.Class.extend
 				// reset gravity for body
 				if ( !body.isGravityEnabled ( ) )
 				{
-					body.applyForce ( ( this._gravity - gravity ) * body.getMass ( ) );
+					body.applyForce ( cp.v.mult ( ( cp.v.sub ( this._gravity, gravity ) ), body.getMass ( ) ) );
 				}
 			}
 		}
@@ -617,7 +662,7 @@ cc.PhysicsWorld = cc.Class.extend
 			{
 				var 	dt = this._updateTime * this._speed / this._substeps;
 				for ( var i = 0; i < this._substeps; ++i )
-				{
+				{					
 					this._info.step ( dt );
 					for ( var idx in this._bodies )
 					{
@@ -667,7 +712,7 @@ cc.PhysicsWorld = cc.Class.extend
 
 	    // bitmask check
 	    if ( ( shapeA.getCategoryBitmask ( ) & shapeB.getContactTestBitmask ( ) ) == 0 ||
-	    		( shapeA.getContactTestBitmask ( ) & shapeB.getCategoryBitmask ( ) ) == 0 )
+	    	 ( shapeA.getContactTestBitmask ( ) & shapeB.getCategoryBitmask ( ) ) == 0 )
 	    {
 	        contact.setNotificationEnable ( false );
 	    }
@@ -741,7 +786,7 @@ cc.PhysicsWorld = cc.Class.extend
 			//is gravity enable
 			if ( !body.isGravityEnabled ( ) )
 			{
-				body.applyForce ( -this._gravity * body.getMass ( ) );
+				body.applyForce ( cp.v.mult ( cp.v.neg ( this._gravity ), body.getMass ( ) ) );
 			}
 
 			// add body to space

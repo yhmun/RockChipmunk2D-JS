@@ -244,7 +244,7 @@ cc.PhysicsBody = cc.Class.extend
 
 	/** Applies a immediate force to body. */
 	applyForce:function ( force, offset )
-	{
+	{		
 		if ( offset === undefined )	offset = cp.vzero;
 
 		if ( this._dynamic && this._mass != cc.PHYSICS_INFINITY )
@@ -261,7 +261,7 @@ cc.PhysicsBody = cc.Class.extend
 		// if _gravityEnabled is false, add a reverse of gravity force to body
 		if ( this._world != null && this._dynamic && !this._gravityEnabled && this._mass != cc.PHYSICS_INFINITY )
 		{
-			this.applyForce ( -this._world.getGravity ( ) * this._mass );
+			this.applyForce ( cp.v.mult ( cp.v.neg ( this._world.getGravity ( ) ), this._mass ) );
 		}		
 	},
 	
@@ -876,11 +876,11 @@ cc.PhysicsBody = cc.Class.extend
 			{
 				if ( enable )
 				{
-					this.applyForce ( this._world.getGravity ( ) * this._mass );
+					this.applyForce ( cp.v.mult ( this._world.getGravity ( ), this._mass ) );
 				}
 				else
 				{
-					this.applyForce ( -this._world.getGravity ( ) * this._mass );
+					this.applyForce ( cp.v.mult ( cp.v.neg ( this._world.getGravity ( ) ), this._mass ) );
 				}
 			}
 		}		
@@ -1014,14 +1014,14 @@ cc.PhysicsBody = cc.Class.extend
 	{		
 		if ( this._dynamic && !this._gravityEnabled && this._world != null && oldMass != cc.PHYSICS_INFINITY )
 		{
-			this.applyForce ( this._world.getGravity ( ) * oldMass );
+			this.applyForce ( cp.v.mult ( this._world.getGravity ( ), oldMass ) );
 		}
 
 		this._info.getBody ( ).setMass ( newMass );
 
 		if ( this._dynamic && !this._gravityEnabled && this._world != null && newMass != cc.PHYSICS_INFINITY )
 		{
-			this.applyForce ( -this._world.getGravity ( ) * newMass );
+			this.applyForce ( cp.v.mult ( cp.v.neg ( this._world.getGravity ( ) ), newMass ) );
 		}		
 	},
 });

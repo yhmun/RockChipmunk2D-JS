@@ -25,332 +25,303 @@
 
 cc.physicsSceneCount = 0;
 
-cc.NodeEx = cc.Node.extend
-({
-	ctor:function ( ) 
-	{		
-		cc.Node.prototype.ctor.call ( this );		
-						
-		this.setAnchorPoint ( cc.p ( 0.5, 0.5 ) );
-		
-		this._physicsBody 		 = null;
-		this._physicsScaleStartX = 1;
-		this._physicsScaleStartY = 1;					
-	},
+cc.Node.prototype._physicsBody 		  = null;
+cc.Node.prototype._physicsScaleStartX = 1;
+cc.Node.prototype._physicsScaleStartY = 1;
+
+cc.Node.prototype.setPhysicsBody = function ( body )
+{
+	if ( this._physicsBody == body )
+	{
+		return;
+	}
+
+	if ( body != null )
+	{
+		if ( body.getNode ( ) != null )
+		{
+			body.getNode ( ).setPhysicsBody ( null );
+		}
+
+		body._node = this;
+//		body.retain ( );
+
+		// physics rotation based on body position, but node rotation based on node anthor point
+		// it cann't support both of them, so I clear the anthor point to default.
+		if ( !cc.pointEqualToPoint ( this.getAnchorPoint ( ), cc.p ( 0.5, 0.5 ) ) )
+		{				
+//			cc.log ( "Node warning: setPhysicsBody sets anchor point to Vec2::ANCHOR_MIDDLE." );
+			this.setAnchorPoint ( cc.p ( 0.5, 0.5 ) );
+		}
+	}
+
+	if ( this._physicsBody != null )
+	{
+		var 	world = this._physicsBody.getWorld ( );
+		this._physicsBody.removeFromWorld ( );
+		this._physicsBody._node = null;
+//		this._physicsBody.release ( );
+
+		if ( world != null && body != null )
+		{
+			world.addBody ( body );
+		}
+	}
+
+	this._physicsBody = body;
+	this._physicsScaleStartX = this.scaleX;
+	this._physicsScaleStartY = this.scaleY;
 	
-	/**
-	 *   set the PhysicsBody that let the sprite effect with physics
-	 * @note This method will set anchor point to Vec2::ANCHOR_MIDDLE if body not null, and you cann't change anchor point if node has a physics body.
-	 */
-	setPhysicsBody:function ( body )
-	{
-		if ( this._physicsBody == body )
+	if ( body != null )
+	{			
+		var 	node = null;
+		var		scene = null;
+		for ( node = this.parent; node != null; node = node.parent )
 		{
-			return;
-		}
-		
-		if ( body != null )
-		{
-			if ( body.getNode ( ) != null )
+			if ( node instanceof cc.Scene )
 			{
-				body.getNode ( ).setPhysicsBody ( null );
-			}
-
-			body._node = this;
-			// body.retain ( );
-
-			// physics rotation based on body position, but node rotation based on node anthor point
-			// it cann't support both of them, so I clear the anthor point to default.
-			if ( !cc.pointEqualToPoint ( this.getAnchorPoint ( ), cc.p ( 0.5, 0.5 ) ) )
-			{				
-				cc.log ( "Node warning: setPhysicsBody sets anchor point to Vec2::ANCHOR_MIDDLE." );
-				this.setAnchorPoint ( cc.p ( 0.5, 0.5 ) );
-			}
-		}
-
-		if ( this._physicsBody != null )
-		{
-			var 	world = this._physicsBody.getWorld ( );
-			this._physicsBody.removeFromWorld ( );
-			this._physicsBody._node = null;
-			// this._physicsBody.release ( );
-
-			if ( world != null && body != null )
-			{
-				world.addBody ( body );
-			}
-		}
-
-		this._physicsBody = body;
-		this._physicsScaleStartX = this.scaleX;
-		this._physicsScaleStartY = this.scaleY;
-
-		if ( body != null )
-		{			
-			var 	node = null;
-			var		scene = null;
-			for ( node = this.parent; node != null; node = node.parent )
-			{
-				if ( node instanceof cc.SceneEx )
+				if ( node.getPhysicsWorld ( ) != null )
 				{
-					if ( node.getPhysicsWorld ( ) != null )
-					{
-						scene = node;
-						break;
-					}
+					scene = node;
+					break;
 				}
 			}
-
-			if ( scene != null )
-			{
-				scene.getPhysicsWorld ( ).addBody ( body );
-			}
-
-			this.updatePhysicsBodyTransform ( scene );			
 		}
-	},	
-	
-	/**
-	 *   get the PhysicsBody the sprite have
-	 */
-	getPhysicsBody:function ( )
+
+		if ( scene != null )
+		{
+			scene.getPhysicsWorld ( ).addBody ( body );
+		}
+
+		this.updatePhysicsBodyTransform ( scene );			
+	}
+};
+
+/**
+ *   get the PhysicsBody the sprite have
+ */
+cc.Node.prototype.getPhysicsBody = function ( )
+{
+	return this._physicsBody;
+};
+
+cc.Node.prototype.updatePhysicsBodyTransform = function ( scene )
+{
+	this.updatePhysicsBodyScale    ( scene );
+	this.updatePhysicsBodyPosition ( scene );
+	this.updatePhysicsBodyRotation ( scene );		
+};
+
+cc.Node.prototype.updatePhysicsBodyPosition = function ( scene )
+{		
+	if ( this._physicsBody != null )
 	{
-		return this._physicsBody;
-	},
-
-	// Temporary
-	onExit:function ( )
-	{		
-		if ( this._physicsBody != null )
-		{
-			this._physicsBody.removeFromWorld ( );
-		}
-		
-		cc.Scene.prototype.onExit.call ( this );		
-	},
-
-	updatePhysicsBodyTransform:function ( scene )
-	{
-		this.updatePhysicsBodyScale    ( scene );
-		this.updatePhysicsBodyPosition ( scene );
-		this.updatePhysicsBodyRotation ( scene );		
-	},
-
-	updatePhysicsBodyPosition:function ( scene )
-	{		
-		if ( this._physicsBody != null )
-		{
-			if ( scene && scene.getPhysicsWorld ( ) )
-			{											
-				var 	pos = this.parent == scene ?
-								this.getPosition ( ) : scene.convertToNodeSpace ( this.parent.convertToWorldSpace ( this.getPosition ( ) ) );
-				this._physicsBody.setPosition ( pos );
-			}
-			else
-			{
-				this._physicsBody.setPosition ( this.getPosition ( ) );
-			}
-		}
-
-		for ( var idx in this._children )
-		{
-			var		child = this._children [ idx ];
-			child.updatePhysicsBodyPosition ( scene );
-		}		
-	},
-
-	updatePhysicsBodyRotation:function ( scene )
-	{		
-		if ( this._physicsBody != null )
-		{
-			if ( scene && scene.getPhysicsWorld ( ) )
-			{
-				var 	rotation = this.rotationX;
-				for ( var parent = this.parent; parent != scene; parent = parent.parent )
-				{
-					rotation += parent.rotationX;
-				}
-				this._physicsBody.setRotation ( rotation );
-			}
-			else
-			{				
-				this._physicsBody.setRotation ( this.rotationX );
-			}
-		}
-
-		for ( var idx in this._children )
-		{
-			var		child = this._children [ idx ];
-			child.updatePhysicsBodyRotation ( scene );
-		}
-	},
-
-	updatePhysicsBodyScale:function ( scene )
-	{		
-		if ( this._physicsBody != null )
-		{
-			if ( scene && scene.getPhysicsWorld ( ) )
-			{
-				var 	scaleX = this.scaleX / this._physicsScaleStartX;
-				var	 	scaleY = this.scaleY / this._physicsScaleStartY;
-				for ( var parent = this.parent; parent != scene; parent = parent.parent )
-				{
-					scaleX *= parent.scaleX;
-					scaleY *= parent.scaleY;
-				}
-				this._physicsBody.setScale ( scaleX, scaleY );
-			}
-			else
-			{	
-				this._physicsBody.setScale ( this.scaleX / this._physicsScaleStartX, this.scaleY / this._physicsScaleStartY );
-			}
-		}
-
-		for ( var idx in this._children )
-		{
-			var		child = this._children [ idx ];
-			child.updatePhysicsBodyScale ( scene );
-		}		
-	},
-
-	getScene:function ( ) 
-	{		
-		if ( !this.parent )
-		{
-			return null;
-		}
-
-		var 	sceneNode = this.parent;
-		while ( sceneNode.parent )
-		{
-			sceneNode = sceneNode.parent;
-		}
-		
-		if ( sceneNode instanceof cc.SceneEx )
-		{
-			return sceneNode;
+		if ( scene && scene.getPhysicsWorld ( ) )
+		{											
+			var 	pos = this.parent == scene ?
+					this.getPosition ( ) : scene.convertToNodeSpace ( this.parent.convertToWorldSpace ( this.getPosition ( ) ) );
+					this._physicsBody.setPosition ( pos );
 		}
 		else
 		{
-			return null;
-		}		
-	},
-
-	setRotation:function ( newRotation )
-	{
-		cc.Node.prototype.setRotation.call ( this, newRotation );
-
-		if ( !this._physicsBody || !this._physicsBody._rotationResetTag )
-		{
-			this.updatePhysicsBodyRotation ( this.getScene ( ) );
-		}		
-	},
-
-	setScale:function ( scale, scaleY )
-	{
-		if ( scaleY === undefined )		scaleY = scale;
-		
-		cc.Node.prototype.setRotation.call ( this, scale, scaleY );
-		
-		if ( cc.g_physicsSceneCount == 0 )
-		{
-			return;
+			this._physicsBody.setPosition ( this.getPosition ( ) );
 		}
-		
-		var 	scene = this.getScene ( );
-		if ( !scene || scene.getPhysicsWorld ( ) )
-		{
-			this.updatePhysicsBodyTransform ( scene );
-		}		
-	},	
-	
-	setScaleX:function ( newScaleX )
+	}
+
+	for ( var idx in this._children )
 	{
-		cc.Node.prototype.setScaleX.call ( this, newScaleX );
-		
-		if ( cc.g_physicsSceneCount == 0 )
-		{
-			return;
-		}
+		var		child = this._children [ idx ];
+		child.updatePhysicsBodyPosition ( scene );		
+	}		
+};
 
-		var 	scene = this.getScene ( );
-		if ( !scene || scene.getPhysicsWorld ( ) )
-		{
-			this.updatePhysicsBodyTransform ( scene );
-		}	
-	},
-	
-	setScaleY:function ( newScaleY )
+cc.Node.prototype.updatePhysicsBodyRotation = function ( scene )
+{		
+	if ( this._physicsBody != null )
 	{
-		cc.Node.prototype.setScaleY.call ( this, newScaleY );
-		
-		if ( cc.g_physicsSceneCount == 0 )
-		{
-			return;
-		}
-
-		var 	scene = this.getScene ( );
-		if ( !scene || scene.getPhysicsWorld ( ) )
-		{
-			this.updatePhysicsBodyTransform ( scene );
-		}	
-	},	
-	
-	setPosition:function ( newPosOrxValue, yValue )
-	{
-		var		x;
-		var		y;
-		
-		if ( yValue === undefined )
-		{
-			x = newPosOrxValue.x;
-			y = newPosOrxValue.y;
-		}
-		else 
-		{
-			x = newPosOrxValue;
-			y = yValue;
-		}
-		
-		cc.Node.prototype.setPosition.call ( this, x, y );
-				
-		if ( this._physicsBody != null )
-		{						
-			this.updatePhysicsBodyPosition ( this.getScene ( ) );
-		}		
-	},
-	
-	_addChildHelper:function ( child, localZOrder, tag, name, setTag )
-	{
-		if(!this._children)
-			this._children = [];
-
-		this._insertChild(child, localZOrder);
-		if(setTag)
-			child.setTag(tag);
-		else
-			child.setName(name);
-
-		child.setParent(this);
-		child.setOrderOfArrival(cc.s_globalOrderOfArrival++);
-
-		// Recursive add children with which have physics body.
-		var 	scene = this.getScene ( );
 		if ( scene && scene.getPhysicsWorld ( ) )
 		{
-			child.updatePhysicsBodyTransform ( scene );
-			scene.addChildToPhysicsWorld ( child );
+			var 	rotation = this.rotationX;
+			for ( var parent = this.parent; parent != scene; parent = parent.parent )
+			{
+				rotation += parent.rotationX;
+			}
+			this._physicsBody.setRotation ( rotation );
 		}
-		
-		if( this._running ){
-			child.onEnter();
-			// prevent onEnterTransitionDidFinish to be called twice when a node is added in onEnter
-			if (this._isTransitionFinished)
-				child.onEnterTransitionDidFinish();
+		else
+		{				
+			this._physicsBody.setRotation ( this.rotationX );
 		}
-		if (this._cascadeColorEnabled)
-			child._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.colorDirty);
-		if (this._cascadeOpacityEnabled)
-			child._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.opacityDirty);
-	},	
-});
+	}
+
+	for ( var idx in this._children )
+	{
+		var		child = this._children [ idx ];
+		child.updatePhysicsBodyRotation ( scene );		
+	}
+};
+
+cc.Node.prototype.updatePhysicsBodyScale = function ( scene )
+{		
+	if ( this._physicsBody != null )
+	{
+		if ( scene && scene.getPhysicsWorld ( ) )
+		{
+			var 	scaleX = this.scaleX / this._physicsScaleStartX;
+			var	 	scaleY = this.scaleY / this._physicsScaleStartY;
+			for ( var parent = this.parent; parent != scene; parent = parent.parent )
+			{
+				scaleX *= parent.scaleX;
+				scaleY *= parent.scaleY;
+			}
+			this._physicsBody.setScale ( scaleX, scaleY );
+		}
+		else
+		{				
+			this._physicsBody.setScale ( this.scaleX / this._physicsScaleStartX, this.scaleY / this._physicsScaleStartY );
+		}
+	}
+
+	for ( var idx in this._children )
+	{
+		var		child = this._children [ idx ];
+		child.updatePhysicsBodyScale ( scene );		
+	}		
+};
+
+cc.Node.prototype.getScene = function ( ) 
+{		
+	if ( !this.parent )
+	{
+		return null;
+	}
+
+	var 	sceneNode = this.parent;
+	while ( sceneNode.parent )
+	{
+		sceneNode = sceneNode.parent;
+	}
+
+	if ( sceneNode instanceof cc.Scene )
+	{
+		return sceneNode;
+	}
+	else
+	{
+		return null;
+	}		
+};
+
+cc.Node.prototype.addChildEx = function ( child, localZOrder, tag )
+{
+	if ( localZOrder === undefined ) localZOrder = 0;
+	if ( tag 		 === undefined ) tag = child.tag;
+	
+	this.addChild ( child, localZOrder, tag );
+	
+	// Recursive add children with which have physics body.
+	var 	scene = this.getScene ( );
+	if ( scene && scene.getPhysicsWorld ( ) )
+	{
+		child.updatePhysicsBodyTransform ( scene );
+		scene.addChildToPhysicsWorld ( child );
+	}		
+};
+
+cc.Node.prototype.removeChildEx = function ( child, cleanup )
+{
+	if ( cleanup === undefined ) cleanup = true;
+
+	if ( child._physicsBody != null )
+	{
+		child._physicsBody.removeFromWorld ( );
+	}
+	
+	this.removeChild ( child, cleanup );
+};
+
+cc.Node.prototype.setPosition = function ( newPosOrxValue, yValue )
+{
+	if ( yValue === undefined )
+	{
+		this.x = newPosOrxValue.x;
+		this.y = newPosOrxValue.y;
+	}
+	else 
+	{
+		this.x = newPosOrxValue;
+		this.y = yValue;
+	}
+
+	if ( this._physicsBody != null )
+	{						
+		this.updatePhysicsBodyPosition ( this.getScene ( ) );
+	}	
+};
+
+cc.Node.prototype.setScale = function ( scale, scaleY )
+{
+	if ( scaleY === undefined )	
+	{
+		this.scaleX = scale;
+		this.scaleY = scale;
+	}
+	else
+	{
+		this.scaleX = scale;
+		this.scaleY = scaleY;		
+	}
+	
+	if ( cc.g_physicsSceneCount == 0 )
+	{
+		return;
+	}
+
+	var 	scene = this.getScene ( );
+	if ( !scene || scene.getPhysicsWorld ( ) )
+	{
+		this.updatePhysicsBodyTransform ( scene );
+	}		
+};
+
+cc.Node.prototype.setScaleX = function ( newScaleX )
+{
+	this.scaleX = newScaleX;
+	
+	if ( cc.g_physicsSceneCount == 0 )
+	{
+		return;
+	}
+
+	var 	scene = this.getScene ( );
+	if ( !scene || scene.getPhysicsWorld ( ) )
+	{
+		this.updatePhysicsBodyTransform ( scene );
+	}	
+};
+
+cc.Node.prototype.setScaleY = function ( newScaleY )
+{
+	this.scaleY = newScaleY;
+	
+	if ( cc.g_physicsSceneCount == 0 )
+	{
+		return;
+	}
+
+	var 	scene = this.getScene ( );
+	if ( !scene || scene.getPhysicsWorld ( ) )
+	{
+		this.updatePhysicsBodyTransform ( scene );
+	}	
+};
+
+cc.Node.prototype.setRotation = function ( newRotation )
+{
+	this.rotationX = this.rotationY = newRotation;	
+
+	if ( !this._physicsBody || !this._physicsBody._rotationResetTag )
+	{
+		this.updatePhysicsBodyRotation ( this.getScene ( ) );
+	}		
+};

@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+cp.Shape.prototype.userdata = null;
+
 cc.PhysicsShapeInfo = cc.Class.extend
 ({
 	_map : null,
@@ -54,6 +56,8 @@ cc.PhysicsShapeInfo = cc.Class.extend
 		shape.group = this._group;
 		this._shapes.push ( shape );		
 		cc.PhysicsShapeInfo._map.push ( { key:shape, value:this } );
+		
+		shape.userdata = this;
 	},
 	
 	remove:function ( shape )

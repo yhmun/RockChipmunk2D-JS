@@ -34,7 +34,7 @@ cc.PhysicsWorldInfo = cc.Class.extend
 	{
 		return this._space; 
 	},
-	
+
 	addShape:function ( shape )
 	{
 		var		shapes = shape.getShapes ( );
@@ -100,8 +100,8 @@ cc.PhysicsWorldInfo = cc.Class.extend
 	},
 	
 	isLocked:function ( )
-	{
-		return this._space.locked;
+	{		
+		return this._space.isLocked ( );
 	},
 	
 	step:function ( delta )

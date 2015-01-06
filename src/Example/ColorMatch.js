@@ -30,7 +30,7 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
-msw.Ball = cc.SpriteEx.extend 
+msw.Ball = cc.Sprite.extend 
 ({
 	ctor:function ( )
 	{
@@ -41,6 +41,7 @@ msw.Ball = cc.SpriteEx.extend
 		this._radius 	= msw.rand ( ) % 10 + 30;
 		
 		this._super ( "res/ColorMatch/ball_" + this._ballColor + ".png" );  
+		
 		
 		var 	ball_body = cc.PhysicsBody.createCircle ( this._radius, cc.PhysicsMaterial ( 1, 0.5, 0.2 ) );
 		ball_body.setCategoryBitmask ( 0x0001 );
@@ -110,16 +111,17 @@ WALL_ORIGIN		= cc.p ( 124, 99 );
 WALL_SIZE		= cc.size ( 720, 560 );
 BALL_TAG 		= 1;
 
-msw.ColorMatch = cc.SceneEx.extend 
+msw.ColorMatch = cc.Scene.extend 
 ({
 	ctor:function ( ) 
 	{
 		this._super ( );
-
-		this.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
+		
+		this.initWithPhysics ( );
+		
 		this.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -400 ) );	   
-		this.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
 		this.DebugDraw = true;
+		this.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
 
 		var		bg = new cc.Sprite ( "res/ColorMatch/bg.png" );
 		bg.setPosition ( SCR_W2, SCR_H2 );
@@ -134,7 +136,7 @@ msw.ColorMatch = cc.SceneEx.extend
 		wall_body.addShape ( r_shape );
 		wall_body.setDynamic ( false );
 
-		var 	wall_node = new cc.NodeEx ( );
+		var 	wall_node = new cc.Node ( );
 		wall_node.setPhysicsBody ( wall_body );
 		this.addChild ( wall_node );
 

@@ -33,11 +33,13 @@
 var GRID_SPACE = 30;
 var DRAG_BODYS_TAG = 0x80;
 
-msw.BaseScene = cc.SceneEx.extend 
+msw.BaseScene = cc.Scene.extend 
 ({
 	ctor:function ( ) 
 	{
 		this._super ( );
+		
+		this.initWithPhysics ( );
 		
 		var		BG = new cc.LayerColor ( cc.color ( 128, 128, 128, 128 ) );
 		this.addChild ( BG );
@@ -58,7 +60,7 @@ msw.BaseScene = cc.SceneEx.extend
 		// Initialize Physics
 		var		Size = cc.winSize;
 		var 	Body = cc.PhysicsBody.createEdgeBox ( Size, cc.PHYSICSBODY_MATERIAL_DEFAULT, 5 );				
-	    this.WallNode = new cc.NodeEx ( );
+	    this.WallNode = new cc.Node ( );
 	    Body.setGroup ( 1 );
 	    this.WallNode.setPosition ( Size.width / 2, Size.height / 2 );
 	    this.WallNode.setPhysicsBody ( Body );
@@ -111,41 +113,39 @@ msw.BaseScene = cc.SceneEx.extend
 	{
 	    var 	Location = Touch.getLocation ( );
 	    var 	Shapes   = this.getPhysicsWorld ( ).getShapes ( Location );
-	    
-	    cc.log ( Shapes );
+	    	   
 	    for ( var idx in Shapes )
 	    {
 	    	var		Shape = Shapes [ idx ];
 	    	var		Body  = Shape.getBody ( );
 	    	if ( ( Body.getTag ( ) & DRAG_BODYS_TAG ) != 0 )
 	    	{
-	    		var 	Mouse = new cc.NodeEx ( );
+	    		var 	Mouse = new cc.Node ( );
 	    		Mouse.setPhysicsBody ( cc.PhysicsBody.create ( cc.PHYSICS_INFINITY, cc.PHYSICS_INFINITY ) );
 	    		Mouse.getPhysicsBody ( ).setDynamic ( false );
 	    		Mouse.setPosition ( Location );
-		        this.addChild ( Mouse );
-		        		        
-		        var 	Joint = cc.PhysicsJointPin.create ( Mouse.getPhysicsBody ( ), Body, Location );
-		        Joint.setMaxForce ( 5000.0 * Body.getMass ( ) );
-		        this.getPhysicsWorld ( ).addJoint ( Joint );
-		        		        
-		        this.Mouses.push ( { key : Touch.getID ( ), value : Mouse } );		       
+	    		this.addChild ( Mouse );
+
+	    		var 	Joint = cc.PhysicsJointPin.create ( Mouse.getPhysicsBody ( ), Body, Location );
+	    		Joint.setMaxForce ( 5000.0 * Body.getMass ( ) );
+	    		this.getPhysicsWorld ( ).addJoint ( Joint );
+
+	    		this.Mouses.push ( { first : Touch.getID ( ), second : Mouse } );		       
 		        return true;
 	    	}	    	
 	    }
-	    
+
 	    return false;
 	},	
 
 	onTouchMoved:function ( Touch, Event )
 	{
 		var		id = Touch.getID ( );
-		for ( var i in this.Mouses )
+		for ( var i = 0; i < this.Mouses.length; i++ )		
 		{
-			var		Mouse = this.Mouses [ i ];
-			if ( Mouse.key == id )
+			if ( this.Mouses [ i ].first == id )
 			{								
-				Mouse.value.setPosition ( Touch.getLocation ( ) );
+				this.Mouses [ i ].second.setPosition ( Touch.getLocation ( ) );
 				break;
 			}
 			
@@ -155,14 +155,14 @@ msw.BaseScene = cc.SceneEx.extend
 	onTouchEnded:function ( Touch, Event )
 	{
 		var		id = Touch.getID ( );
-		for ( var i in this.Mouses )
+		for ( var i = 0; i < this.Mouses.length; i++ )		
 		{
-			var		Mouse = this.Mouses [ i ];
-			if ( Mouse.key == id )
+			if ( this.Mouses [ i ].first == id )
 			{
-				this.removeChild ( Mouse.value );
+				this.removeChildEx ( this.Mouses [ i ].second );
+//				this.removeChild ( Mouse.second );
 				this.Mouses.splice ( i, 1 );
-				break;				
+				i--;			
 			}
 		}		
 	},	
@@ -188,7 +188,7 @@ msw.BaseScene = cc.SceneEx.extend
 		var 	Body = cc.PhysicsBody.createCircle ( Radius, Material );
 		Body.setTag ( DRAG_BODYS_TAG );
 				
-		var 	Ball = new cc.SpriteEx ( "res/ball.png" );
+		var 	Ball = new cc.Sprite ( "res/ball.png" );
 		Ball.setScale ( Radius / ( Ball.getContentSize ( ).width * 0.5 ) );
 		Ball.setPhysicsBody ( Body );
 		Ball.setPosition ( Point );
@@ -201,12 +201,13 @@ msw.BaseScene = cc.SceneEx.extend
 		var 	Body = cc.PhysicsBody.createBox ( Size );
 		Body.setTag ( DRAG_BODYS_TAG );
 		
-		var 	Box = new cc.SpriteEx ( "res/YellowSquare.png" );
-		var		BoxSize = Box.getContentSize ( );	
-		Box.setScale ( Size.width / BoxSize.width, Size.height / BoxSize.height );		
+		var 	Box = new cc.Sprite ( "res/YellowSquare.png" );
+		var		BoxSize = Box.getContentSize ( );
+		
+		Box.setScale ( Size.width / BoxSize.width, Size.height / BoxSize.height );
 		Box.setPhysicsBody ( Body );
 		Box.setPosition ( Point );
-		Box.setRotation ( cc.random0To1 ( ) * 360 );
+		Box.setRotation ( cc.random0To1 ( ) * 360 );		
 		
 		return Box;
 	},

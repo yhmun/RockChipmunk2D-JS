@@ -23,92 +23,59 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-cc.SceneEx = cc.Scene.extend
-({
-	ctor:function ( ) 
-	{
-		cc.Scene.prototype.ctor.call ( this );
-	
-		this._physicsWorld = null;
-		
-		this.initWithPhysics ( );
-	},
-	
-	onExit:function ( )
-	{		
-		cc.Scene.prototype.onExit.call ( this );		
-	},
-	
-	addChild:function ( child, localZOrder, tag )
-	{
-		if ( localZOrder === undefined ) localZOrder = 0;
-		if ( tag === undefined ) tag = 0;
-	
-		cc.Scene.prototype.addChild.call ( this, child, localZOrder, tag );
-		
-		this.addChildToPhysicsWorld ( child );
-	},
-	
-	update:function ( delta )
-	{
-		if ( null != this._physicsWorld && this._physicsWorld.isAutoStep ( ) )
-		{
-			this._physicsWorld.update ( delta );
-		}		
-	},
-	
-	getPhysicsWorld:function ( )
-	{
-		return this._physicsWorld; 
-	},
-	
-	initWithPhysics:function ( )
-	{
-		this.setContentSize ( cc.winSize );
-		
-		this._physicsWorld = new cc.PhysicsWorld ( this );
+cc.Scene.prototype.initWithPhysics = function ( )
+{
+	this._physicsWorld = new cc.PhysicsWorld ( this );
 
-		this.scheduleUpdate ( );
-		
-		// success
-		cc.g_physicsSceneCount += 1;
-		
-		return true;	
-	},
+	this.scheduleUpdate ( );
 
-	addChildToPhysicsWorld:function ( child )
+	// success
+	cc.g_physicsSceneCount += 1;	
+};
+
+cc.Scene.prototype.getPhysicsWorld = function ( )
+{
+	return this._physicsWorld; 
+};
+
+cc.Scene.prototype.update = function ( delta )
+{
+	if ( null != this._physicsWorld && this._physicsWorld.isAutoStep ( ) )
 	{
-		// temporary code
-		if ( !( child instanceof cc.NodeEx || child instanceof cc.SpriteEx ) )
+		this._physicsWorld.update ( delta );
+	}		
+};
+
+cc.Scene.prototype.addChild = function ( child, localZOrder, tag )
+{
+	if ( localZOrder === undefined ) localZOrder = 0;
+	if ( tag 		 === undefined ) tag = child.tag;
+	
+	cc.Node.prototype.addChild.call ( this, child, localZOrder, tag );
+	
+	this.addChildToPhysicsWorld ( child );
+};
+
+cc.Scene.prototype.addChildToPhysicsWorld = function ( child )
+{
+	if ( this._physicsWorld )
+	{
+		var		world = this._physicsWorld;
+		var		addToPhysicsWorldFunc = function ( node )
 		{
-			return;
-		}
-		
-		if ( this._physicsWorld )
-		{
-			var		world = this._physicsWorld;
-			var		addToPhysicsWorldFunc = function ( node )
+			if ( node.getPhysicsBody ( ) )
 			{
-				// temporary code
-				if (  !( node instanceof cc.NodeEx || child instanceof cc.SpriteEx ) )
-				{
-					return;
-				}
-				
-				if ( node.getPhysicsBody ( ) )
-				{
-					world.addBody ( node.getPhysicsBody ( ) );
-				}
-				
-				var		children = node.getChildren ( );
-				for ( var idx in children )
-				{
-					var		n = children [ idx ];
-					addToPhysicsWorldFunc ( n );
-				}
-			};
-			
-			addToPhysicsWorldFunc ( child );
-		}
-	},	
-});
+				world.addBody ( node.getPhysicsBody ( ) );
+			}
+
+			var		children = node.getChildren ( );
+			for ( var idx in children )
+			{
+				var		n = children [ idx ];
+				addToPhysicsWorldFunc ( n );
+			}
+		};
+
+		addToPhysicsWorldFunc ( child );
+	}
+};

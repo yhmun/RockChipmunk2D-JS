@@ -108,19 +108,19 @@ msw.RollingBall = msw.BaseScene.extend
 		switch ( RandIdx )
 		{
 			case 0 :
-				Sprite = new cc.SpriteEx ( "res/egg.png" );				
+				Sprite = new cc.Sprite ( "res/egg.png" );				
 				Body = cc.PhysicsBody.createPolygon ( this.VertEgg, cc.PhysicsMaterial ( 0.1, 1.5, 1 ), cp.vzero );
 				Sprite.setTag ( 0 );				
 				break;
 				
 			case 1 :
-	            Sprite = new cc.SpriteEx ( "res/cai1.png" );
+	            Sprite = new cc.Sprite ( "res/cai1.png" );
 	            Body = cc.PhysicsBody.createEdgePolygon ( this.VertCai );
 	            Sprite.setTag ( 1 );				
 				break;
 				
 			case 2 :
-	            Sprite = new cc.SpriteEx ( "res/cai2.png" );
+	            Sprite = new cc.Sprite ( "res/cai2.png" );
 	            Body = cc.PhysicsBody.createCircle ( 55 );
 	            Sprite.setTag ( 2 );				
 				break;				

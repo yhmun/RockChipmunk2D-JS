@@ -164,7 +164,7 @@ cc.PhysicsShape = cc.Class.extend
 	{
 		return this._material.restitution; 
 	},
-	
+
 	setRestitution:function ( restitution )
 	{
 		this._material.restitution = restitution;
@@ -230,9 +230,8 @@ cc.PhysicsShape = cc.Class.extend
 		for ( var idx in shapes )
 		{
 			var		shape = shapes [ idx ];
-			var		result = shape.pointQuery ( point );
-			if ( !( result === undefined ) )
-			{
+			if ( shape.pointQuery ( point ) )
+			{				
 				return true;
 			}			
 		}
@@ -443,9 +442,24 @@ cc.PhysicsShape.recenterPoints = function ( points, count, center )
 };
 
 /** get center of the polyon points */
-cc.PhysicsShape.getPolyonCenter = function ( points, count )
+cc.PhysicsShape.getPolyonCenter = function ( points )
 {
-	var 	center = cp.centroidForPoly ( points );    
+	var		verts = null;
+	if ( (typeof points [ 0 ]) == "object" )
+	{
+		verts = new Array ( points.length * 2 );
+		for ( var i = 0; i < points.length; i++ )
+		{
+			verts [ i * 2 + 0 ] = points [ i ].x;
+			verts [ i * 2 + 1 ] = points [ i ].y;
+		}		
+	}
+	else
+	{
+		verts = points;
+	}
+	
+	var 	center = cp.centroidForPoly ( verts );    
 	return center;
 };
 
@@ -558,7 +572,7 @@ cc.PhysicsShapeCircle = cc.PhysicsShape.extend
     		shape.c = v;
     		shape.r = shape.r * factor;
     	}
-    	
+
     	cc.PhysicsShape.prototype.update.call ( this, delta );
     },    
 });
@@ -596,8 +610,23 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 		if ( offset   === undefined )	offset   = cp.vzero;
 
 		cc.PhysicsShape.prototype.init.call ( this, cc.PhysicsShape.Type.POLYGEN );
+
+		var		verts = null;
+		if ( (typeof points [ 0 ]) == "object" )
+		{
+			verts = new Array ( points.length * 2 );
+			for ( var i = 0; i < points.length; i++ )
+			{
+				verts [ i * 2 + 0 ] = points [ i ].x;
+				verts [ i * 2 + 1 ] = points [ i ].y;
+			}		
+		}
+		else
+		{
+			verts = points;
+		}
 		
-		var 	shape = new cp.PolyShape ( this._info.getSharedBody ( ), points, offset );
+		var 	shape = new cp.PolyShape ( this._info.getSharedBody ( ), verts, offset );
 		if ( shape == null )
 		{
 			return false;
@@ -621,23 +650,23 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 
 	getPoint:function ( i ) 
 	{
-		var		shape = this._info.getShapes ( ) [ 0 ];			
-		return shape.verts [ i ];
+		var		shape = this._info.getShapes ( ) [ 0 ];		
+		return cp.v ( shape.verts [ i * 2 ], shape.verts [ i * 2 + 1 ] );
 	},
 	
 	getPoints:function ( outPoints ) 
 	{
 		var		shape = this._info.getShapes ( ) [ 0 ];			
-		for ( var i in shape.verts )
+		for ( var i = 0; i < shape.verts.length / 2; i++ )
 		{
-			outPoints [ i ] = shape.verts [ i ];
+			outPoints [ i ] = cp.v ( shape.verts [ i * 2 ], shape.verts [ i * 2 + 1 ] );
 		}
 	},
 	
 	getPointsCount:function ( ) 
 	{
 		var		shape = this._info.getShapes ( ) [ 0 ];	
-		return shape.verts.length;
+		return shape.verts.length / 2;
 	},
 	
 	getCenter:function ( ) 
@@ -740,12 +769,12 @@ cc.PhysicsShapeBox = cc.PhysicsShapePolygon.extend
 		cc.PhysicsShape.prototype.init.call ( this, cc.PhysicsShape.Type.BOX );
 
 		var 	points = 
-			[
+		[
 			 -size.width / 2, -size.height / 2,
 			 -size.width / 2, +size.height / 2,
 			 +size.width / 2, +size.height / 2,
 			 +size.width / 2, -size.height / 2
-			 ];
+		];
 
 		var 	shape = new cp.PolyShape ( this._info.getSharedBody ( ), points, offset );
 
@@ -814,10 +843,10 @@ cc.PhysicsShapeEdgeSegment = cc.PhysicsShape.extend
     {
     	var 	a = this._info.getShapes ( ) [ 0 ].a;
     	var 	b = this._info.getShapes ( ) [ 0 ].b;
-    	
+
     	return cp.v.mult ( cp.v.add ( a, b ), 0.5 );
     },
-    
+
     update:function ( delta )
     {
     	if ( this._dirty )
@@ -826,11 +855,11 @@ cc.PhysicsShapeEdgeSegment = cc.PhysicsShape.extend
     		var 	factorY = this._newScaleY / this._scaleY;
 
     		var		shape = this._info.getShapes ( ) [ 0 ];    	
-			var 	a = shape.a;											
+			var 	a = cp.v ( shape.a.x, shape.a.y );											
 			a.x *= factorX;
 			a.y *= factorY;
 
-			var 	b = shape.b;
+			var 	b = cp.v ( shape.b.x, shape.b.y );	
 			b.x *= factorX;
 			b.y *= factorY;		
 
@@ -863,10 +892,18 @@ cc.PhysicsShapeEdgePolygon = cc.PhysicsShape.extend
 
 		cc.PhysicsShape.prototype.init.call ( this, cc.PhysicsShape.Type.EDGEPOLYGEN );		
 
-		var		verts = new Array ( );
-		for ( var i = 0; i < points.length; i += 2 )
+		var		verts = null;
+		if ( (typeof points [ 0 ]) == "object" )
 		{
-			verts.push ( cp.v ( points [ i ], points [ i + 1 ] ) );			
+			verts = points;
+		}
+		else
+		{
+			verts = new Array ( );
+			for ( var i = 0; i < points.length; i += 2 )
+			{
+				verts.push ( cp.v ( points [ i ], points [ i + 1 ] ) );	
+			}	
 		}
 		
 		var		count = verts.length;
@@ -877,7 +914,7 @@ cc.PhysicsShapeEdgePolygon = cc.PhysicsShape.extend
 			{
 				return false;				
 			}
-			
+
 			shape.setElasticity ( 1 );
 			shape.setFriction ( 1 );
 						
@@ -932,16 +969,16 @@ cc.PhysicsShapeEdgePolygon = cc.PhysicsShape.extend
 			for ( var idx in shapes ) 
 			{
 				var		shape = shapes [ idx ];
-								
-				var 	a = shape.a;											
+									
+				var 	a = cp.v ( shape.a.x, shape.a.y );											
 				a.x *= factorX;
 				a.y *= factorY;
 				
-				var 	b = shape.b;
+				var 	b = cp.v ( shape.b.x, shape.b.y );	
 				b.x *= factorX;
 				b.y *= factorY;		
-				
-				shape.setEndpoints ( a, b );								
+
+				shape.setEndpoints ( a, b );					
 			}
 		}
 
@@ -978,8 +1015,8 @@ cc.PhysicsShapeEdgeBox = cc.PhysicsShapeEdgePolygon.extend
 		 	cp.v ( +size.width / 2 + offset.x, -size.height / 2 + offset.y ),
 		 	cp.v ( +size.width / 2 + offset.x, +size.height / 2 + offset.y ),
 		 	cp.v ( -size.width / 2 + offset.x, +size.height / 2 + offset.y )
-		];
-			
+		 	];
+
 		for ( var i = 0; i < 4; ++i )
 		{
 			var 	shape = new cp.SegmentShape ( this._info.getSharedBody ( ), points [ i ], points [ ( i + 1 ) % 4 ], border );
@@ -1027,10 +1064,18 @@ cc.PhysicsShapeEdgeChain = cc.PhysicsShapeEdgePolygon.extend
 
 		cc.PhysicsShape.prototype.init.call ( this, cc.PhysicsShape.Type.EDGECHAIN );	
 
-		var		verts = new Array ( );
-		for ( var i = 0; i < points.length; i += 2 )
+		var		verts = null;
+		if ( (typeof points [ 0 ]) == "object" )
 		{
-			verts.push ( cp.v ( points [ i ], points [ i + 1 ] ) );			
+			verts = points;
+		}
+		else
+		{
+			verts = new Array ( );
+			for ( var i = 0; i < points.length; i += 2 )
+			{
+				verts.push ( cp.v ( points [ i ], points [ i + 1 ] ) );	
+			}	
 		}
 
 		var		count = verts.length;
@@ -1065,7 +1110,7 @@ cc.PhysicsShapeEdgeChain = cc.PhysicsShapeEdgePolygon.extend
 		for ( var idx in shapes )
 		{
 			var		shape = shapes [ idx ];
-			points [ i++ ] = shape.a;
+			points [ i++ ] = cp.v ( shape.a.x, shape.a.y );	
 		}
 
 		points [ i++ ] = shapes [ shapes.length - 1 ].b;
@@ -1080,7 +1125,7 @@ cc.PhysicsShapeEdgeChain = cc.PhysicsShapeEdgePolygon.extend
 		for ( var idx in shapes )
 		{
 			var		shape = shapes [ idx ];
-			outPoints [ i++ ] = shape.a;
+			outPoints [ i++ ] = cp.v ( shape.a.x, shape.a.y );	
 		}
 
 		outPoints [ i++ ] = shapes [ shapes.length - 1 ].b;
@@ -1103,11 +1148,11 @@ cc.PhysicsShapeEdgeChain = cc.PhysicsShapeEdgePolygon.extend
 			{
 				var		shape = shapes [ idx ];
 
-				var 	a = shape.a;											
+				var 	a = cp.v ( shape.a.x, shape.a.y );											
 				a.x *= factorX;
 				a.y *= factorY;
 
-				var 	b = shape.b;
+				var 	b = cp.v ( shape.b.x, shape.b.y );		
 				b.x *= factorX;
 				b.y *= factorY;		
 

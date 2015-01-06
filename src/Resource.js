@@ -39,4 +39,12 @@ msw.RESOURCES =
 	 "res/refreshSelected.png",
 	 "res/ball.png",
 	 "res/YellowSquare.png",
+	 "res/YellowSquare.png",
+	 "res/ColorMatch/ball_0.png",
+	 "res/ColorMatch/ball_1.png",
+	 "res/ColorMatch/ball_2.png",
+	 "res/ColorMatch/ball_3.png",
+	 "res/ColorMatch/ball_4.png",
+	 "res/ColorMatch/ball_5.png",
+	 "res/ColorMatch/bg.png",
 ];

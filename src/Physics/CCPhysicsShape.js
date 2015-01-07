@@ -256,7 +256,7 @@ cc.PhysicsShape = cc.Class.extend
 	
 	/**
 	 * A mask that defines which categories of bodies cause intersection notifications with this physics body.
-	 * When two bodies share the same space, each body’s category mask is tested against the other body’s contact mask by performing a logical AND operation. If either comparison results in a non-zero value, an PhysicsContact object is created and passed to the physics world’s delegate. For best performance, only set bits in the contacts mask for interactions you are interested in.
+	 * When two bodies share the same space, each body's category mask is tested against the other body's contact mask by performing a logical AND operation. If either comparison results in a non-zero value, an PhysicsContact object is created and passed to the physics world's delegate. For best performance, only set bits in the contacts mask for interactions you are interested in.
 	 * The default value is 0x00000000 (all bits cleared).
 	 */
 	setContactTestBitmask:function ( bitmask )
@@ -271,7 +271,7 @@ cc.PhysicsShape = cc.Class.extend
 	
 	/**
 	 * A mask that defines which categories of physics bodies can collide with this physics body.
-	 * When two physics bodies contact each other, a collision may occur. This body’s collision mask is compared to the other body’s category mask by performing a logical AND operation. If the result is a non-zero value, then this body is affected by the collision. Each body independently chooses whether it wants to be affected by the other body. For example, you might use this to avoid collision calculations that would make negligible changes to a body’s velocity.
+	 * When two physics bodies contact each other, a collision may occur. This body's collision mask is compared to the other body's category mask by performing a logical AND operation. If the result is a non-zero value, then this body is affected by the collision. Each body independently chooses whether it wants to be affected by the other body. For example, you might use this to avoid collision calculations that would make negligible changes to a body's velocity.
 	 * The default value is 0xFFFFFFFF (all bits set).
 	 */
 	setCollisionBitmask:function ( bitmask )

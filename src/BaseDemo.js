@@ -202,9 +202,10 @@ msw.BaseDemo = cc.LayerGradient.extend
 		body.setTag ( DRAG_BODYS_TAG );
 				
 		var 	ball = new cc.Sprite ( "res/ball.png" );
-		ball.setScale ( radius / ( ball.getContentSize ( ).width * 0.5 ) );
+		
 		ball.setPhysicsBody ( body );
 		ball.setPosition ( point );
+		ball.setScale ( radius / ( ball.getContentSize ( ).width * 0.5 ) );
 		
 		return ball;
 	},
@@ -219,10 +220,10 @@ msw.BaseDemo = cc.LayerGradient.extend
 		var 	box = new cc.Sprite ( "res/YellowSquare.png" );
 		var		box_size = box.getContentSize ( );
 		
-		box.setScale ( size.width / box_size.width, size.height / box_size.height );
 		box.setPhysicsBody ( body );
 		box.setPosition ( point );
 		box.setRotation ( cc.random0To1 ( ) * 360 );		
+		box.setScale ( size.width / box_size.width, size.height / box_size.height );
 		
 		return box;
 	},	

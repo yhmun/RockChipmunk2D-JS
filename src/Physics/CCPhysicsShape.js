@@ -690,6 +690,7 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 
 			var		shape  = this._info.getShapes ( ) [ 0 ];
 			var		count  = shape.verts.length;
+						
 			var		count2 = count / 2;
 			var		verts  = shape.verts;
 			var		planes = shape.planes;
@@ -705,21 +706,21 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 			{
 				for ( var i = 0; i < count2; i += 2 )
 				{
-					var		v1 = vects [ i + 0 ];
-					var		v2 = vects [ i + 1 ];
+					var		v1 = verts [ i + 0 ];
+					var		v2 = verts [ i + 1 ];
 					
-					vects [ i + 0 ] = vects [ count - ( i - 1 ) * 2 + 0 ];
-					vects [ i + 1 ] = vects [ count - ( i - 1 ) * 2 + 1 ];
+					verts [ i + 0 ] = verts [ count - ( i - 1 ) * 2 + 0 ];
+					verts [ i + 1 ] = verts [ count - ( i - 1 ) * 2 + 1 ];
 					
-					vects [ count - ( i - 1 ) * 2 + 0 ] = v1;
-					vects [ count - ( i - 1 ) * 2 + 1 ] = v2;
+					verts [ count - ( i - 1 ) * 2 + 0 ] = v1;
+					verts [ count - ( i - 1 ) * 2 + 1 ] = v2;
 				}
 			}
 
 			for ( var i = 0; i < count2; i ++ )
 			{
-				var 	v0 = cp.v ( vects [ i * 2 ], vects [ i * 2 + 1 ] );
-				var		v1 = cp.v ( vects [ ( i + 1 ) % count2 * 2 ], vects [ ( i + 1 ) % count2 * 2 + 1 ] )
+				var 	v0 = cp.v ( verts [ i * 2 ], verts [ i * 2 + 1 ] );
+				var		v1 = cp.v ( verts [ ( i + 1 ) % count2 * 2 ], verts [ ( i + 1 ) % count2 * 2 + 1 ] )
 				var		n  = cp.v.normalize ( cp.v.perp ( cp.v.sub ( v0, v1 ) ) );
 				
 				planes [ i ].n = n;

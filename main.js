@@ -28,12 +28,6 @@
 
 var msw = msw || {};
 
-var SCR_W = 0;
-var SCR_H = 0;
-
-var SCR_W2 = 0;
-var SCR_H2 = 0;
-
 msw.rand = function ( )
 {
 	return parseInt ( Math.random ( ) * 0xffffff );
@@ -47,12 +41,6 @@ cc.game.onStart = function ( )
 
 	cc.LoaderScene.preload ( msw.RESOURCES, function ( ) 
 	{
-		SCR_W = cc.winSize.width;
-		SCR_H = cc.winSize.height; 
-
-		SCR_W2 = SCR_W / 2;
-		SCR_H2 = SCR_H / 2;  
-		
 		cc.director.runScene ( new msw.IntroScene ( ) );
 	}, this );
 };

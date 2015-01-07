@@ -85,7 +85,7 @@ msw.BaseDemo = cc.LayerGradient.extend
 		var 	body = cc.PhysicsBody.createEdgeBox ( size, cc.PHYSICSBODY_MATERIAL_DEFAULT, 5 );				
 		this._wallNode = new cc.Node ( );
 		body.setGroup ( 1 );
-		this._wallNode.setPosition ( size.width / 2, size.height / 2 );
+		this._wallNode.setPosition ( VisibleRect.left ( ).x + size.width / 2, VisibleRect.bottom ( ).y + size.height / 2 );
 		this._wallNode.setPhysicsBody ( body );
 		this.addChildEx ( this._wallNode );		
 		

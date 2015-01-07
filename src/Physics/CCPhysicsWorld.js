@@ -380,7 +380,7 @@ cc.PhysicsWorld = cc.Class.extend
 		var 	info = this._info._space.nearestPointQueryNearest ( point, 0, cp.ALL_LAYERS, cp.NO_GROUP );		
 		if ( info )
 		{				
-        	return shape.userdata.getShape ( );        		
+        	return info.shape.userdata.getShape ( );        		
 		}
 		
 		return null;

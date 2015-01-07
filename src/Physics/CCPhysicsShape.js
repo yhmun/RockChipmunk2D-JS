@@ -668,7 +668,7 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 		var		shape = this._info.getShapes ( ) [ 0 ];	
 		return shape.verts.length / 2;
 	},
-	
+
 	getCenter:function ( ) 
 	{
 		var		shape = this._info.getShapes ( ) [ 0 ];			
@@ -687,40 +687,40 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 		{
 			var 	factorX = this._newScaleX / this._scaleX;
 			var 	factorY = this._newScaleY / this._scaleY;
-
+			
 			var		shape  = this._info.getShapes ( ) [ 0 ];
-			var		count  = shape.verts.length;
+			var		count  = shape.verts.length / 2;
 						
-			var		count2 = count / 2;
 			var		verts  = shape.verts;
 			var		planes = shape.planes;
 			
-			for ( var i = 0; i < count; i += 2 ) 
+			for ( var i = 0; i < count; i++ ) 
 			{
-				verts [ i + 0 ] = factorX;
-				verts [ i + 1 ] = factorY;							
+				verts [ i * 2 + 0 ] *= factorX;
+				verts [ i * 2 + 1 ] *= factorY;		
 			}
 			
 			// convert hole to clockwise
 			if ( factorX * factorY < 0 )
 			{
-				for ( var i = 0; i < count2; i += 2 )
+				for ( var i = 0; i < count / 2; i++ )
 				{
-					var		v1 = verts [ i + 0 ];
-					var		v2 = verts [ i + 1 ];
+					var		vx = verts [ i * 2 + 0 ];
+					var		vy = verts [ i * 2 + 1 ];
 					
-					verts [ i + 0 ] = verts [ count - ( i - 1 ) * 2 + 0 ];
-					verts [ i + 1 ] = verts [ count - ( i - 1 ) * 2 + 1 ];
+					verts [ i * 2 + 0 ] = verts [ ( count - i - 1 ) * 2 + 0 ];
+					verts [ i * 2 + 1 ] = verts [ ( count - i - 1 ) * 2 + 1 ];
 					
-					verts [ count - ( i - 1 ) * 2 + 0 ] = v1;
-					verts [ count - ( i - 1 ) * 2 + 1 ] = v2;
+					verts [ ( count - i - 1 ) * 2 + 0 ] = vx;
+					verts [ ( count - i - 1 ) * 2 + 1 ] = vy;
 				}
 			}
 
-			for ( var i = 0; i < count2; i ++ )
+			for ( var i = 0; i < count; i++ )
 			{
-				var 	v0 = cp.v ( verts [ i * 2 ], verts [ i * 2 + 1 ] );
-				var		v1 = cp.v ( verts [ ( i + 1 ) % count2 * 2 ], verts [ ( i + 1 ) % count2 * 2 + 1 ] )
+				var 	v0 = cp.v ( verts [ i * 2 + 0 ], verts [ i * 2 + 1 ] );
+				var		v1 = cp.v ( verts [ ( ( i + 1 ) % count ) * 2 + 0 ], verts [ ( ( i + 1 ) % count ) * 2 + 1 ] );
+				
 				var		n  = cp.v.normalize ( cp.v.perp ( cp.v.sub ( v0, v1 ) ) );
 				
 				planes [ i ].n = n;

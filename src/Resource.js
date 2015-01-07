@@ -47,4 +47,7 @@ msw.RESOURCES =
 	 "res/ColorMatch/ball_4.png",
 	 "res/ColorMatch/ball_5.png",
 	 "res/ColorMatch/bg.png",
+	 "res/SimplePlatformer/blocks.png",
+	 "res/SimplePlatformer/scroller.tmx",
+	 "res/HitMe/hit_me.png",
 ];

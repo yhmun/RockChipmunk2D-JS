@@ -24,6 +24,7 @@
         "src/Physics/CCPhysicsJoint.js",
         "src/Physics/CCPhysicsWorld.js",
         "src/Physics/CCPhysicsContact.js",
+        "src/CCBlade/CCBlade.js",
         "src/GLNode/GLNode.js",
         "src/PRKit/PRFilledPolygon.js",
         "src/PRKit/Triangulate.js",

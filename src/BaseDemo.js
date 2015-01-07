@@ -173,12 +173,12 @@ msw.BaseDemo = cc.LayerGradient.extend
 			}
 		}		
 	},	
-	
+
 	backCallback:function ( sender )
 	{
 		cc.director.runScene ( new msw.ContentScene ( ) );
 	},
-	
+
 	restartCallback:function ( sender )
 	{
 
@@ -198,6 +198,8 @@ msw.BaseDemo = cc.LayerGradient.extend
 	
 	createBall:function ( point, radius, material )
 	{		
+		if ( material = undefined ) 	material = cc.PHYSICSBODY_MATERIAL_DEFAULT;
+		
 		var 	body = cc.PhysicsBody.createCircle ( radius, material );
 		body.setTag ( DRAG_BODYS_TAG );
 				
@@ -209,8 +211,10 @@ msw.BaseDemo = cc.LayerGradient.extend
 		return ball;
 	},
 	
-	createBox:function ( point, size )
+	createBox:function ( point, size, material )
 	{
+		if ( material = undefined ) 	material = cc.PHYSICSBODY_MATERIAL_DEFAULT;
+		
 		var 	body = cc.PhysicsBody.createBox ( size );
 		body.setTag ( DRAG_BODYS_TAG );
 		
@@ -224,4 +228,26 @@ msw.BaseDemo = cc.LayerGradient.extend
 		
 		return box;
 	},	
+	
+	createTriangle:function ( point, size, material )
+	{
+		if ( material = undefined ) 	material = cc.PHYSICSBODY_MATERIAL_DEFAULT;
+		
+	    var 	triangle = new cc.Sprite ( );
+	    
+	    var 	verts =
+	    [
+	        cp.v (               0,  size.height / 2 ),
+	        cp.v (  size.width / 2, -size.height / 2 ),
+	        cp.v ( -size.width / 2, -size.height / 2 )
+	    ];
+	    
+	    var 	body = cc.PhysicsBody.createPolygon ( verts, material );
+	    triangle.setPhysicsBody ( body );
+	    triangle.setPosition ( point );
+	    triangle.setRotation ( cc.random0To1 ( ) * 360 );
+	    triangle.setTag ( DRAG_BODYS_TAG );
+	    
+	    return triangle;
+	},
 });

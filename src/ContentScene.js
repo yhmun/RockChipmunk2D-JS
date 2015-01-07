@@ -32,7 +32,7 @@
 
 msw.Demos = 
 [
-	{ Name : "01 Basic"					, Scene:function ( ) { return msw.HelloWorld		 .createScene ( ) } },	
+ { Name : "01 Basic"					, Scene:function ( ) { return msw.HelloWorld		 .createScene ( ) } },	
 	{ Name : "02 RollingBall"			, Scene:function ( ) { return msw.RollingBall 		 .createScene ( ) } },	
 	{ Name : "03 PinJoint"				, Scene:function ( ) { return msw.PinJoint 			 .createScene ( ) } },	
 	{ Name : "04 SlideJoint"			, Scene:function ( ) { return msw.SlideJoint 		 .createScene ( ) } },	
@@ -57,10 +57,10 @@ msw.ContentScene = cc.Scene.extend
 		var		BG = new cc.LayerColor ( cc.color ( 255, 255, 255, 255 ) );
 		this.addChild ( BG );
 
-		var 	TableView = new cc.TableView ( this, cc.size ( SCR_W, SCR_H - 60 ) );
+		var 	TableView = new cc.TableView ( this, cc.size ( cc.winSize.width, VisibleRect.size ( ).height - 60 ) );
 		TableView.setDirection ( cc.SCROLLVIEW_DIRECTION_VERTICAL );
 		TableView.setVerticalFillOrder ( cc.TABLEVIEW_FILL_TOPDOWN );
-		TableView.setPosition ( 0, 30 );		
+		TableView.setPosition ( 0, VisibleRect.bottom ( ).y + 30 );		
 		TableView.setDelegate ( this );
 		this.addChild ( TableView );
 	},
@@ -84,7 +84,7 @@ msw.ContentScene = cc.Scene.extend
 	
 	tableCellSizeForIndex:function ( Table, Idx )
 	{
-		return cc.size ( SCR_W, 60 );
+		return cc.size ( cc.winSize, 60 );
 	},
 
 	tableCellAtIndex:function ( Table, Idx )
@@ -97,7 +97,7 @@ msw.ContentScene = cc.Scene.extend
 			Cell = new cc.TableViewCell ( );
 
 			var 	Sprite = new cc.Sprite ( "res/scrollItemBgNormal.png" );			
-			Sprite.setPosition ( SCR_W2, 30 );		
+			Sprite.setPosition ( cc.winSize.width / 2, 30 );		
 			Cell.addChild ( Sprite, 0, 100 );
 		
 			var		Label = new cc.LabelTTF ( Name, "Helvetica", 20 );

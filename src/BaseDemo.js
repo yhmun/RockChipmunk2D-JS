@@ -41,18 +41,16 @@ msw.BaseDemo = cc.LayerGradient.extend
 
 		this._super ( cc.color ( 64, 64, 64, 255 ), cc.color ( 128, 128, 128, 255 ) );
 
-		var 	size = VisibleRect.size ( );
-
 		// Grid
 		var 	bg_grid = new cc.DrawNode ( );			
-		for ( var i = 0; i < SCR_H; i += GRID_SPACE )
+		for ( var i = 0; i < cc.winSize.height; i += GRID_SPACE )
 		{					
-			bg_grid.drawSegment ( cc.p ( 0, i ), cc.p ( size.width, i ), 0.5, cc.color ( 0, 0, 0, 128 ) );
+			bg_grid.drawSegment ( cc.p ( 0, i ), cc.p ( cc.winSize.width, i ), 0.5, cc.color ( 0, 0, 0, 128 ) );
 		}
 
-		for ( var i = 0; i < SCR_W; i += GRID_SPACE )
+		for ( var i = 0; i < cc.winSize.width; i += GRID_SPACE )
 		{
-			bg_grid.drawSegment ( cc.p ( i, 0 ), cc.p ( i, size.height ), 0.5, cc.color ( 0, 0, 0, 128 ) );
+			bg_grid.drawSegment ( cc.p ( i, 0 ), cc.p ( i, cc.winSize.height ), 0.5, cc.color ( 0, 0, 0, 128 ) );
 		}
 		this.addChild ( bg_grid );		
 

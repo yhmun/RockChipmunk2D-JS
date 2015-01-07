@@ -38,28 +38,30 @@ msw.IntroScene = cc.Scene.extend
         
         this.Counter = 0;
         
+        var		visibleSize = cc.director.getVisibleSize ( );
+        
         var		BG = new cc.LayerColor ( cc.color ( 255, 255, 255, 255 ) );
         this.addChild ( BG );
         
         var		ChipmunkLogo = new cc.Sprite ( "res/chipmunkLogo.png" );
-        ChipmunkLogo.setPosition ( SCR_W2, SCR_H * 4 / 5 );
+        ChipmunkLogo.setPosition ( visibleSize.width / 2, visibleSize.height * 4 / 5 );
         this.addChild ( ChipmunkLogo );
         
         var		GithubLogo = new cc.Sprite ( "res/steroidtocat.png" );
-        GithubLogo.setPosition ( SCR_W / 3, SCR_H2 );
+        GithubLogo.setPosition ( visibleSize.width / 3, visibleSize.height / 2 );
         this.addChild ( GithubLogo );
         
         var		ChipmunkCNLogo = new cc.Sprite ( "res/ChipmunkCN_logo_200x200.png" );
-        ChipmunkCNLogo.setPosition ( SCR_W * 2 / 3, SCR_H2 );
+        ChipmunkCNLogo.setPosition ( visibleSize.width * 2 / 3, visibleSize.height / 2 );
         this.addChild ( ChipmunkCNLogo );
    
         var		ChipmunkCNUrl = new cc.LabelTTF ( "https://github.com/ChipmunkCommunityCN", "res/fonts/Marker Felt.ttf", 20 );
-        ChipmunkCNUrl.setPosition ( SCR_W * 2 / 3, SCR_H2 - 130 );
+        ChipmunkCNUrl.setPosition ( visibleSize.width * 2 / 3, visibleSize.height / 2 - 130 );
         ChipmunkCNUrl.setColor ( cc.color ( 155, 5, 5 ) );
         this.addChild ( ChipmunkCNUrl );        
         
         this.PlayMenuItem = new cc.MenuItemImage ( "res/goNormal.png", "res/goSelected.png", this.play, this );
-        this.PlayMenuItem.setPosition ( SCR_W * 4 / 5, SCR_H / 5 );
+        this.PlayMenuItem.setPosition ( visibleSize.width * 4 / 5, visibleSize.height / 5 );
         var		PlayMenu = new cc.Menu ( this.PlayMenuItem );
         PlayMenu.setPosition ( 0, 0 );
         this.addChild ( PlayMenu );

@@ -59,17 +59,17 @@ msw.PivotJoint = msw.BaseDemo.extend
 		for ( var i = 0; i < BAMBOO_SEGMENTS_NUM; i++ )
 		{
 			var 	box = this.createBox ( cc.p ( bridgePierL.getPositionX ( ) + BAMBOO_SEGMENT_SIZE.width * i, pierPosY ), BAMBOO_SEGMENT_SIZE );
-			box.setRotation ( 0 );
+			box.setRotation ( 0 );			
 			this.addChildEx ( box );
 			bamboos.push ( box );
 		}		
-		
+				
 		var 	pinJointL = cc.PhysicsJointPin.create ( bridgePierL.getPhysicsBody ( ), bamboos [ 0 ].getPhysicsBody ( ), bridgePierL.getPosition ( ) );
 		var 	pinJointR = cc.PhysicsJointPin.create ( bridgePierR.getPhysicsBody ( ), bamboos [ bamboos.length - 1 ].getPhysicsBody ( ), bridgePierR.getPosition ( ) );
 		pinJointL.setCollisionEnable ( false );
 		pinJointR.setCollisionEnable ( false );
 		this._world.addJoint ( pinJointL );
-		this._world.addJoint ( pinJointR );   	
+		this._world.addJoint ( pinJointR );   			
 		
 		for ( var i = 0; i < BAMBOO_SEGMENTS_NUM - 1; i++ )
 		{

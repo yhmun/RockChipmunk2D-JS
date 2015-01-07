@@ -27,7 +27,6 @@ cp.Shape.prototype.userdata = null;
 
 cc.PhysicsShapeInfo = cc.Class.extend
 ({
-	_map : null,
 	_sharedBody : null,
 
 	ctor:function ( shape )
@@ -36,8 +35,6 @@ cc.PhysicsShapeInfo = cc.Class.extend
 		{
 			cc.PhysicsShapeInfo._sharedBody = new cp.Body ( Infinity, Infinity );
 			cc.PhysicsShapeInfo._sharedBody.nodeIdleTime = Infinity;
-			
-			cc.PhysicsShapeInfo._map = new Array ( );
 		}
 		
 		this._shapes = new Array ( );
@@ -55,8 +52,6 @@ cc.PhysicsShapeInfo = cc.Class.extend
 
 		shape.group = this._group;
 		this._shapes.push ( shape );		
-		cc.PhysicsShapeInfo._map.push ( { key:shape, value:this } );
-		
 		shape.userdata = this;
 	},
 	
@@ -71,17 +66,6 @@ cc.PhysicsShapeInfo = cc.Class.extend
 		if ( idx != -1 )
 		{
 			this._shapes.splice ( idx, 1 );
-			
-			for ( var i = 0; i < cc.PhysicsShapeInfo._map.length; i++ )
-			{
-				var		key = cc.PhysicsShapeInfo._map [ i ].key;
-				if ( key == shape )
-				{
-					cc.PhysicsShapeInfo._map.splice ( i, 1 );
-					break;
-				}
-			}
-			
 			delete shape;
 		}
 	},
@@ -92,17 +76,6 @@ cc.PhysicsShapeInfo = cc.Class.extend
 		{
 			var		shape = this._shapes [ 0 ];
 			this._shapes.splice ( 0, 1 );
-			
-			for ( var i = 0; i < cc.PhysicsShapeInfo._map.length; i++ )
-			{
-				var		key = cc.PhysicsShapeInfo._map [ i ].key;
-				if ( key == shape )
-				{
-					cc.PhysicsShapeInfo._map.splice ( i, 1 );
-					break;
-				}
-			}			
-			
 			delete shape;
 		}
 	},
@@ -156,11 +129,6 @@ cc.PhysicsShapeInfo = cc.Class.extend
 		return cc.PhysicsShapeInfo._sharedBody;
 	},
 });
-
-cc.PhysicsShapeInfo.getMap = function ( )
-{
-	return cc.PhysicsShapeInfo._map;
-};
 
 cc.PhysicsShapeInfo.getSharedBody = function ( )
 {

@@ -34,19 +34,135 @@ msw.FruitCutNinja = msw.BaseDemo.extend
 ({
 	onEnter:function ( ) 
 	{
-		this._super ( );				
+		this._super ( );
+		
+		this._deltaRemainder = 0;
+		this._sliceTag 		 = 1;		
+		this._startPoint 	 = cp.vzero;
+		this._endPoint	 	 = cp.vzero;
+		this._startPos  	 = cp.vzero;		// Because Touch Bug
+
+		var 	box = new cc.Node ( );
+		var 	points = [ cp.v ( -100, -100 ), cp.v ( -100, 100 ), cp.v ( 100, 100 ), cp.v ( 100, -100 ) ];
+		box.setPhysicsBody ( cc.PhysicsBody.createPolygon ( points ) );
+		box.setPosition ( VisibleRect.center ( ) );
+		box.getPhysicsBody ( ).setTag ( this._sliceTag );	
+		this.addChildEx ( box );			
 	},
 
 	demo_info:function ( )
 	{
 		return "13 Fruit Ninja Cut";
 	},
-	
+
 	restartCallback:function ( sender )
 	{
 		var		scene = msw.FruitCutNinja.createScene ( );
 		cc.director.runScene ( scene );
 	},	
+
+	slice:function ( world, info, data )
+	{
+		if ( info.shape.getBody ( ).getTag ( ) != this._sliceTag )
+		{
+			return true;
+		}
+
+		if ( !info.shape.containsPoint ( info.start ) && !info.shape.containsPoint ( info.end ) )
+		{						
+			var 	normal = cp.v.sub ( info.end, info.start );
+			normal = cp.v.normalize ( cp.v.perp ( normal ) ); 
+			var 	dist = cp.v.dot ( info.start, normal );
+
+			this.clipPoly ( info.shape, normal, dist );
+			this.clipPoly ( info.shape, cp.v.neg ( normal ), -dist );
+
+			info.shape.getBody ( ).removeFromWorld ( );			
+		}
+
+		return true;
+	},
+
+	clipPoly:function ( shape, normal, distance )
+	{	
+		var 	body  = shape.getBody ( );
+		var 	count = shape.getPointsCount ( );
+		var 	pointsCount = 0;
+		var 	points = new Array ( ); 		
+		
+		for ( var i = 0, j = count - 1; i < count; j = i, ++i )
+		{				
+			var 	a = body.local2World ( shape.getPoint ( j ) );
+			var 	aDist = cp.v.dot ( a, normal ) - distance;
+
+			if ( aDist < 0.0 )
+			{
+				points [ pointsCount ] = a;
+				++pointsCount;
+			}
+
+			var 	b = body.local2World ( shape.getPoint ( i ) );
+			var 	bDist = cp.v.dot ( b, normal ) - distance;
+
+			if ( aDist * bDist < 0.0 )
+			{
+				var 	t = Math.abs ( aDist ) / ( Math.abs ( aDist ) + Math.abs ( bDist ) );
+				points [ pointsCount ] = cp.v.lerp ( a, b, t );
+				++pointsCount;
+			}
+		}
+		
+		var 	center = cc.PhysicsShape.getPolyonCenter ( points );
+		var 	node   = new cc.Node ( );
+		var 	polyon = cc.PhysicsBody.createPolygon ( points, cc.PHYSICSBODY_MATERIAL_DEFAULT, cp.v.neg ( center ) );		
+		node.setPosition ( center );
+		node.setPhysicsBody ( polyon );
+		polyon.setVelocity ( body.getVelocityAtWorldPoint ( center ) );
+		polyon.setAngularVelocity ( body.getAngularVelocity ( ) );
+		polyon.setTag ( this._sliceTag );
+		this.addChildEx ( node );
+	},
+	
+	onTouchBegan:function ( touch, event )
+	{
+		var		location = touch.getLocation ( );
+		this._startPoint = location;
+		this._endPoint   = location;		
+		this._startPos   = location;
+		
+		/*
+        for (Blade* blade : _blades)
+        {
+            if (blade->getPath().size() == 0)
+            {
+                _blade = blade;
+                _blade->push(location);
+                break;
+            }
+        }
+        */
+		
+		return true;
+	},
+
+	onTouchMoved:function ( touch, event )
+	{
+		var		location = touch.getLocation ( );
+		this._endPoint = location;
+		
+		if ( cp.v.dist ( this._startPoint, this._endPoint ) > 25 )
+		{
+			this._startPoint = this._endPoint;
+		}
+
+		//_blade->push(location);
+	},
+	
+	onTouchEnded:function ( touch, event )
+	{
+		//_blade->setDim(true);
+		this._world.rayCast ( this.slice.bind ( this ), this._startPos, touch.getLocation ( ), null );
+	}	
 });
 
 msw.FruitCutNinja.createScene = function ( )
@@ -55,7 +171,7 @@ msw.FruitCutNinja.createScene = function ( )
     
     scene.initWithPhysics ( );
     scene.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
-    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -100 ) );
     
     var		layer = new msw.FruitCutNinja ( );
     layer.setPhysicWorld ( scene.getPhysicsWorld ( ) );

@@ -34,7 +34,14 @@ msw.HitMe = msw.BaseDemo.extend
 ({
 	onEnter:function ( ) 
 	{
-		this._super ( );				
+		this._super ( );	
+		
+		this._bgColorLayer = new cc.LayerColor ( cc.color ( 0, 0, 0, 128 ) );
+		this.addChild ( this._bgColorLayer );
+		
+		this._wallNode.getPhysicsBody ( ).setContactTestBitmask ( 0x000001 );
+		
+		this.setPhysicsForHitItem ( );		
 	},
 
 	demo_info:function ( )
@@ -47,6 +54,51 @@ msw.HitMe = msw.BaseDemo.extend
 		var		scene = msw.HitMe.createScene ( );
 		cc.director.runScene ( scene );
 	},	
+	
+	onTouchBegan:function ( touch, event )
+	{
+		if ( cc.rectContainsPoint ( this._hit.getBoundingBox ( ), touch.getLocation ( ) ) )
+		{					
+			return true;
+		}
+		
+		return false;		
+	},
+	
+	onTouchEnded:function ( touch, event )
+	{
+		this.hitMeFire ( );	
+	},
+	
+	setPhysicsForHitItem:function ( )
+	{
+		this._hit = new cc.Sprite ( "res/HitMe/hit_me.png" );		
+		var 	body = cc.PhysicsBody.createBox ( this._hit.getContentSize ( ), cc.PhysicsMaterial ( 0.3, 0.3, 0.3 ) );
+	    body.setContactTestBitmask ( 0x000001 );	    
+	    this._hit.setPhysicsBody ( body );
+	    this._hit.setPosition ( VisibleRect.center ( ) );	    
+	    this.addChildEx ( this._hit );
+	},
+	
+	onContactBegin:function ( contact )
+	{
+		var 	randomColor = cc.color ( cc.random0To1 ( ) * 255, cc.random0To1 ( ) * 255, cc.random0To1 ( ) * 255 );
+		this._bgColorLayer.setColor ( randomColor );
+	    return true;
+	},
+	
+	hitMeFire:function (  )
+	{				
+		var 	velocity_delta = cp.v.mult ( cp.v ( cc.random0To1 ( ), cc.random0To1 ( ) ), 300 );
+		if ( cc.random0To1 ( ) < 0.5 ) 
+		{
+			velocity_delta = cp.v.neg ( velocity_delta );
+		}
+		
+		var 	body = this._hit.getPhysicsBody ( );
+	    body.setVelocity ( cp.v.add ( body.getVelocity ( ), velocity_delta ) );
+	    body.setAngularVelocity ( body.getAngularVelocity ( ) + 5.0 * cc.random0To1 ( ) );	    
+	}
 });
 
 msw.HitMe.createScene = function ( )
@@ -55,7 +107,7 @@ msw.HitMe.createScene = function ( )
     
     scene.initWithPhysics ( );
     scene.getPhysicsWorld ( ).setDebugDrawMask ( cc.PhysicsWorld.DEBUGDRAW_ALL );
-    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, -200 ) );
+    scene.getPhysicsWorld ( ).setGravity ( cp.v ( 0, 0 ) );
     
     var		layer = new msw.HitMe ( );
     layer.setPhysicWorld ( scene.getPhysicsWorld ( ) );

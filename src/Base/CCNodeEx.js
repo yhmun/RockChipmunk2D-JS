@@ -240,6 +240,18 @@ cc.Node.prototype.removeChildEx = function ( child, cleanup )
 	this.removeChild ( child, cleanup );
 };
 
+cc.Node.prototype.removeFromParentEx = function ( cleanup )
+{
+	if ( cleanup === undefined ) cleanup = true;
+	
+	if ( this._physicsBody != null )
+	{
+		this._physicsBody.removeFromWorld ( );
+	}
+
+	this.removeFromParent ( cleanup );
+};
+
 cc.Node.prototype.setPosition = function ( newPosOrxValue, yValue )
 {
 	if ( yValue === undefined )

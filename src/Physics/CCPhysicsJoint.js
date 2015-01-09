@@ -212,7 +212,8 @@ cc.PhysicsJointFixed = cc.PhysicsJoint.extend
 			joint = new cp.GearJoint ( this.getBodyInfo ( a ).getBody ( ), this.getBodyInfo ( b ).getBody ( ), 0, 1 );
 			if ( joint != null )
 			{
-				this._info.add ( joint );
+				this._info.add ( joint );				
+				this.setCollisionEnable ( false );
 				return true;
 			}
 		}

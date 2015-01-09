@@ -41,7 +41,11 @@ msw.HitMe = msw.BaseDemo.extend
 		
 		this._wallNode.getPhysicsBody ( ).setContactTestBitmask ( 0x000001 );
 		
-		this.setPhysicsForHitItem ( );		
+		this.setPhysicsForHitItem ( );	
+		
+		var 	contactListener = new cc.EventListenerPhysicsContact ( );
+		contactListener.onContactBegin = this.onContactBegin.bind ( this );		
+		cc.eventManager.addCustomListener ( cc.PHYSICSCONTACT_EVENT_NAME, contactListener.onEvent.bind ( contactListener ) );	
 	},
 
 	demo_info:function ( )
@@ -80,7 +84,7 @@ msw.HitMe = msw.BaseDemo.extend
 	    this.addChildEx ( this._hit );
 	},
 	
-	onContactBegin:function ( contact )
+	onContactBegin:function ( contact, target )
 	{
 		var 	randomColor = cc.color ( cc.random0To1 ( ) * 255, cc.random0To1 ( ) * 255, cc.random0To1 ( ) * 255 );
 		this._bgColorLayer.setColor ( randomColor );

@@ -31,8 +31,8 @@
  * ----------------------------------------------------------------------------------- */ 
 
 var 	verts_egg = 
-[
-	  1.9,  88.2,
+	[
+	 1.9,  88.2,
 	 41.8,  67.5,
 	 64.1,  25.2,
 	 66.3, -32.5,
@@ -104,6 +104,13 @@ msw.RollingBall = msw.BaseDemo.extend
 		}
 		
 		flip = !flip;
+		
+		var 	contactListener = new cc.EventListenerPhysicsContact ( );
+		contactListener.onContactBegin 		= this.onContactBegin    .bind ( this );		
+		contactListener.onContactPreSolve 	= this.onContactPreSolve .bind ( this );
+		contactListener.onContactPostSolve 	= this.onContactPostSolve.bind ( this );
+		contactListener.onContactSeperate 	= this.onContactSeperate .bind ( this );
+		cc.eventManager.addCustomListener ( cc.PHYSICSCONTACT_EVENT_NAME, contactListener.onEvent.bind ( contactListener ) );		
 	},
 	
 	demo_info:function ( )
@@ -137,25 +144,55 @@ msw.RollingBall = msw.BaseDemo.extend
 			case 0 :
 				sprite = new cc.Sprite ( "res/egg.png" );				
 				body = cc.PhysicsBody.createPolygon ( this._verts_egg, cc.PhysicsMaterial ( 0.1, 1.5, 1 ), cp.vzero );
-				sprite.setTag ( 0 );				
+				body.setContactTestBitmask ( 0x01 );		
+				sprite.setTag ( 0 );
 				break;
 				
 			case 1 :
 				sprite = new cc.Sprite ( "res/cai1.png" );
 				body = cc.PhysicsBody.createEdgePolygon ( this._verts_cai );
-	            sprite.setTag ( 1 );				
+				body.setContactTestBitmask ( 0x01 );	
+				sprite.setTag ( 1 );
 				break;
 				
 			case 2 :
 				sprite = new cc.Sprite ( "res/cai2.png" );
 				body = cc.PhysicsBody.createCircle ( 55 );
-	            sprite.setTag ( 2 );				
+				body.setContactTestBitmask ( 0x01 );
+				sprite.setTag ( 2 );
 				break;				
 		}
 		
 		sprite.setPhysicsBody ( body );
 		sprite.setPosition ( point );
 	    this.addChildEx ( sprite );
+	},
+	
+	onContactBegin:function ( contact )
+	{
+		var 	sprite  = contact.getShapeA ( ).getBody ( ).getNode ( );
+		var 	sprite2 = contact.getShapeB ( ).getBody ( ).getNode ( );
+		
+		cc.log ( "onContactBegin: sprite1 tag:%d", sprite .getTag ( ) );
+		cc.log ( "onContactBegin: sprite1 tag:%d", sprite2.getTag ( ) );
+		
+		return true;
+	},
+
+	onContactPreSolve:function ( contact, solve ) 
+	{
+//		cc.log ( "pre solve" );
+		return true;
+	},
+
+	onContactPostSolve:function ( contact, solve ) 
+	{
+//		cc.log ( "post solve" );
+	},
+
+	onContactSeperate:function ( contact )
+	{
+//		cc.log ( "seperate solve" );
 	},
 });
 

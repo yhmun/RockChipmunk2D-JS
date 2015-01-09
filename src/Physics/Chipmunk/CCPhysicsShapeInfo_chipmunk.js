@@ -49,7 +49,7 @@ cc.PhysicsShapeInfo = cc.Class.extend
 		{
 			return;
 		}
-
+		
 		shape.group = this._group;
 		this._shapes.push ( shape );		
 		shape.userdata = this;

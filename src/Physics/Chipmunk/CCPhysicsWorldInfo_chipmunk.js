@@ -26,7 +26,7 @@
 cc.PhysicsWorldInfo = cc.Class.extend
 ({
 	ctor:function ( )
-	{
+	{		
 		this._space = new cp.Space ( );
 	},
 

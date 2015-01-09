@@ -57,15 +57,20 @@ msw.ColorMatch = msw.BaseDemo.extend
 		wall_body.addShape ( b_shape );
 		wall_body.addShape ( r_shape );
 		wall_body.setDynamic ( false );
-		
+
 		var 	wall_node = new cc.Node ( );
 		wall_node.setPhysicsBody ( wall_body );
 		this.addChildEx ( wall_node );
-		
+
 		this._ticks = 0;
 		this._balls = new Array ( );	
-		
+
 		this.scheduleUpdate ( );
+
+		var 	contactListener = new cc.EventListenerPhysicsContact ( );
+		contactListener.onContactBegin 		= this.onContactBegin    .bind ( this );		
+		contactListener.onContactPreSolve 	= this.onContactPreSolve .bind ( this );
+		cc.eventManager.addCustomListener ( cc.PHYSICSCONTACT_EVENT_NAME, contactListener.onEvent.bind ( contactListener ) );		
 	},
 
 	demo_info:function ( )
@@ -94,17 +99,45 @@ msw.ColorMatch = msw.BaseDemo.extend
 
 	removeBall:function ( ball )
 	{
-		this.removeChildEx ( ball );
-	
-//		ParticleSystem *particle = ParticleSystemQuad::create("pop.plist");
-//		particle->setPosition(ball->getPosition());
-//		particle->setAutoRemoveOnFinish(true);
-//		this->addChild(particle, 10);
+		var		particle = new cc.ParticleSystem ( "res/ColorMatch/pop.plist" );
+		particle.setPosition ( ball.getPosition ( ) );
+		particle.setAutoRemoveOnFinish ( true );
+		this.addChild ( particle, 10 );
 
+		this.removeChildEx ( ball );
 		this._balls.splice ( this._balls.indexOf ( ball ), 1 );
 
 		cc.audioEngine.playEffect ( "res/ColorMatch/pop.wav" );		
 	},	
+	
+	onContactBegin:function ( contact )
+	{
+		return true;
+	},
+
+	onContactPreSolve:function ( contact, solve )
+	{
+		var	 	a = contact.getShapeA ( ).getBody ( );
+		var 	b = contact.getShapeB ( ).getBody ( );
+		var 	ballA = a.getNode ( );
+		var	 	ballB = b.getNode ( );
+
+		if ( a.getTag ( ) == b.getTag ( ) )
+		{
+			var 	rootA = ballA.getRoot ( );
+			var 	rootB = ballB.getRoot ( );
+
+			if ( rootA != rootB )
+			{
+				rootA.setRoot ( rootB.getRoot ( ) );
+				var 	linkCount = rootA.getLinkCount ( ) + rootB.getLinkCount ( );
+				rootA.setLinkCount ( linkCount );
+				rootB.setLinkCount ( linkCount );
+			}
+		}
+		
+		return true;
+	},
 	
 	onTouchBegan:function ( touch, event )
 	{

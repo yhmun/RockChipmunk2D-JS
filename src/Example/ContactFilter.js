@@ -40,18 +40,18 @@ msw.ContactFilter = msw.BaseDemo.extend
 		var		ball2 = this.createBall ( cc.p ( 400, 100 ), 50, cc.PHYSICSBODY_MATERIAL_DEFAULT );
 		this.addChildEx ( ball1 );
 		this.addChildEx ( ball2 );
-		
+
 		var		box1 = this.createBox ( cc.p ( 400, 200 ), cc.size ( 100, 100 ) );
 		var		box2 = this.createBox ( cc.p ( 600, 400 ), cc.size ( 100, 100 ) );
 		this.addChildEx ( box1 );
 		this.addChildEx ( box2 );	
-		
+
 		var		ball1_body = ball1.getPhysicsBody ( );
 		ball1_body.setCategoryBitmask 	 ( 0x01 );
 		ball1_body.setContactTestBitmask ( 0x01 );
 		ball1_body.setCollisionBitmask 	 ( 0x01 );
 		ball1_body.setGroup ( 0 );
-		
+
 		var		ball2_body = ball2.getPhysicsBody ( );
 		ball2_body.setCategoryBitmask 	 ( 0x01 );
 		ball2_body.setContactTestBitmask ( 0x01 );
@@ -67,12 +67,12 @@ msw.ContactFilter = msw.BaseDemo.extend
 //		box2_body.setCategoryBitmask ( 0x02 );
 		box2_body.setGroup ( 2 );	
 		
-//	    auto contactListener = EventListenerPhysicsContactWithBodies::create(ball1_body, ball2_body);
-//	    contactListener->onContactBegin = CC_CALLBACK_1(ContactFilterScene::onContactBegin, this);
-//	    contactListener->onContactPreSolve = CC_CALLBACK_2(ContactFilterScene::onContactPreSolve, this);
-//	    contactListener->onContactPostSolve = CC_CALLBACK_2(ContactFilterScene::onContactPostSolve, this);
-//	    contactListener->onContactSeperate = CC_CALLBACK_1(ContactFilterScene::onContactSeperate, this);
-//	    _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);		
+		var 	contactListener = new cc.EventListenerPhysicsContactWithBodies ( ball1_body, ball2_body );
+		contactListener.onContactBegin 		= this.onContactBegin    .bind ( this );		
+		contactListener.onContactPreSolve 	= this.onContactPreSolve .bind ( this );
+		contactListener.onContactPostSolve 	= this.onContactPostSolve.bind ( this );
+		contactListener.onContactSeperate 	= this.onContactSeperate .bind ( this );
+		cc.eventManager.addCustomListener ( cc.PHYSICSCONTACT_EVENT_NAME, contactListener.onEvent.bind ( contactListener ) );		
 	},
 
 	demo_info:function ( )
@@ -85,6 +85,29 @@ msw.ContactFilter = msw.BaseDemo.extend
 		var		scene = msw.ContactFilter.createScene ( );
 		cc.director.runScene ( scene );
 	},	
+	
+	onContactBegin:function ( contact )
+	{
+		cc.log ( "ball1_body ball2_body contact begin" );
+		
+		return true;
+	},
+
+	onContactPreSolve:function ( contact, solve ) 
+	{
+		cc.log ( "ball1_body ball2_body presolve" );
+		return true;
+	},
+
+	onContactPostSolve:function ( contact, solve ) 
+	{
+		cc.log ( "ball1_body ball2_body post solve" );
+	},
+
+	onContactSeperate:function ( contact )
+	{
+		cc.log ( "ball1_body ball2_body separate" );
+	},
 });
 
 msw.ContactFilter.createScene = function ( )

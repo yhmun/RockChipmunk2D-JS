@@ -31,13 +31,13 @@ var VisibleRect =
 	{
 		s_visibleRect = cc.rect ( cc.view.getVisibleOrigin ( ).x, cc.view.getVisibleOrigin ( ).y, cc.view.getVisibleSize ( ).width, cc.view.getVisibleSize ( ).height );
 	},
-
+	
 	getVisibleRect:function ( )
 	{
 		VisibleRect.lazyInit ( );
 		return s_visibleRect;
 	},
-
+	
 	size:function ( )
 	{
 		VisibleRect.lazyInit ( );
@@ -98,3 +98,7 @@ var VisibleRect =
 		return cc.p ( s_visibleRect.x + s_visibleRect.width, s_visibleRect.y );
 	}	
 };
+
+
+
+

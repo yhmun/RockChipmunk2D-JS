@@ -47,10 +47,9 @@ msw.SimplePlatformer = msw.BaseDemo.extend
 		this._player.setPosition ( 100.0, 300.0 );
 		this._tileMapNode.addChildEx ( this._player );		
 		
-//		auto contactListener = EventListenerPhysicsContact::create();
-//		contactListener->onContactBegin = CC_CALLBACK_1(SimplePlatformerScene::onContactBegin, this);
-
-//		getEventDispatcher()->addEventListenerWithSceneGraphPriority(contactListener, this);
+		var 	contactListener = new cc.EventListenerPhysicsContact ( );
+		contactListener.onContactBegin = this.onContactBegin.bind ( this );		
+		cc.eventManager.addCustomListener ( cc.PHYSICSCONTACT_EVENT_NAME, contactListener.onEvent.bind ( contactListener ) );	
 	},
 
 	demo_info:function ( )
@@ -104,9 +103,9 @@ msw.SimplePlatformer = msw.BaseDemo.extend
 	            if ( tile != null )
 	            {	            	
 	                property = this._tileMapNode.getPropertiesForGID ( collisionLayer.getTileGIDAt ( cc.p ( i, j ) ) );
-	                var 	collidable = property [ "collidable" ];	               
-	                if ( collidable )
-	                {	                	
+	                var 	collidable = property [ "collidable" ];	  	                
+	                if ( collidable == "true" )
+	                {	             
 	                    var		pos = collisionLayer.getPositionAt ( cc.p ( i, j ) );
 	                    this.makeBoxObjAt ( tile, tileSize, false, cc.PhysicsMaterial ( 0.2, 0.5, 0.5 ) );
 	                }

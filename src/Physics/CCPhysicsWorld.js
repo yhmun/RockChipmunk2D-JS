@@ -35,7 +35,7 @@ cc.PhysicsWorldCallback =
 	continues : false,
 	
 	collisionBeginCallbackFunc:function ( arb, space )
-	{
+	{				
 		var 	shapes = arb.getShapes ( );
 		var		a      = shapes [ 0 ].userdata.getShape ( );
 		var		b      = shapes [ 1 ].userdata.getShape ( );
@@ -65,7 +65,7 @@ cc.PhysicsWorldCallback =
 		
 		this.collisionPostSolveCallback ( arb.data );
 	},
-	
+
 	collisionSeparateCallbackFunc:function ( arb, space )
 	{
 		if ( arb.data === undefined )
@@ -81,13 +81,27 @@ cc.PhysicsWorldCallback =
 
 cc.PhysicsWorldCallback.continues = true;
 
+	
+
 /**
  * @brief An PhysicsWorld object simulates collisions and other physical properties. You do not create PhysicsWorld objects directly; instead, you can get it from an Scene object.
  */
 cc.PhysicsWorld = cc.Class.extend
 ({		
+	_TempBug : null,
+	
 	ctor:function ( scene ) 
 	{
+		/////////////////////////////////////
+		// Avoid Bug - Temporary code.
+		if ( cc.PhysicsWorld_TempBug != null )
+		{
+			cc.PhysicsWorld_TempBug._info.getSpace ( ).setDefaultCollisionHandler ( null, null, null, null );
+		}		
+		cc.PhysicsWorld_TempBug = this;
+		///////////////////////////////
+		
+		
 		this._gravity			= cp.v ( 0, -98.0 );
 		this._speed				= 1;
 		this._updateRate		= 1;
@@ -114,8 +128,9 @@ cc.PhysicsWorld = cc.Class.extend
 	},
 	
 	init:function ( scene )
-	{
+	{		
 		this._info = new cc.PhysicsWorldInfo ( );
+		temp = this._info;
 		
 		this._scene = scene;
 
@@ -134,6 +149,11 @@ cc.PhysicsWorld = cc.Class.extend
 		);
 		
 		return true;
+	},
+	
+	release:function ( )
+	{
+		this._info.getSpace ( ).setDefaultCollisionHandler ( null, null, null, null );		
 	},
 
 	/** Adds a joint to the physics world.*/
@@ -645,14 +665,14 @@ cc.PhysicsWorld = cc.Class.extend
 		for ( var idx in jointsA )
 		{
 			var		joint = jointsA [ idx ];
-			
+
 			var		idx2 = this._joints.indexOf ( joint );
 			if ( idx == -1 )
 			{
 				continue;
 	        }
 	        
-	        if ( !joint.isCollisionEnabled ( ) )
+			if ( !joint.isCollisionEnabled ( ) )
 	        {
 	        	var 	body = joint.getBodyA ( ) == bodyA ? joint.getBodyB ( ) : joint.getBodyA ( );
 	            
@@ -665,8 +685,8 @@ cc.PhysicsWorld = cc.Class.extend
 	    }
 
 	    // bitmask check
-	    if ( ( shapeA.getCategoryBitmask ( ) & shapeB.getContactTestBitmask ( ) ) == 0 ||
-	    	 ( shapeA.getContactTestBitmask ( ) & shapeB.getCategoryBitmask ( ) ) == 0 )
+		if ( ( shapeA.getCategoryBitmask ( ) & shapeB.getContactTestBitmask ( ) ) == 0 ||
+			 ( shapeA.getContactTestBitmask ( ) & shapeB.getCategoryBitmask ( ) ) == 0 )
 	    {
 	        contact.setNotificationEnable ( false );
 	    }
@@ -678,8 +698,8 @@ cc.PhysicsWorld = cc.Class.extend
 	    else
 	    {
 	    	if ( ( shapeA.getCategoryBitmask ( ) & shapeB.getCollisionBitmask ( ) ) == 0 ||
-	        	 ( shapeB.getCategoryBitmask ( ) & shapeA.getCollisionBitmask ( ) ) == 0 )
-	        {
+	    		 ( shapeB.getCategoryBitmask ( ) & shapeA.getCollisionBitmask ( ) ) == 0 )
+	    	{
 	            ret = false;
 	        }
 	    }
@@ -689,6 +709,7 @@ cc.PhysicsWorld = cc.Class.extend
 	        contact.setEventCode ( cc.PhysicsContact.EventCode.BEGIN );
 	        contact.setWorld ( this );
 //	        this._scene.getEventDispatcher ( ).dispatchEvent ( contact );
+	        cc.eventManager.dispatchCustomEvent ( cc.PHYSICSCONTACT_EVENT_NAME, contact );
 	    }
 	    
 	    return ret ? contact.resetResult ( ) : false;	    
@@ -705,6 +726,7 @@ cc.PhysicsWorld = cc.Class.extend
 		contact.setEventCode ( cc.PhysicsContact.EventCode.PRESOLVE );
 		contact.setWorld ( this );
 //		this._scene.getEventDispatcher ( ).dispatchEvent ( contact );
+		cc.eventManager.dispatchCustomEvent ( cc.PHYSICSCONTACT_EVENT_NAME, contact );
 
 		return contact.resetResult ( );		
 	},
@@ -718,7 +740,8 @@ cc.PhysicsWorld = cc.Class.extend
 
 		contact.setEventCode ( cc.PhysicsContact.EventCode.POSTSOLVE );
 		contact.setWorld ( this );
-//		this._scene.getEventDispatcher ( ).dispatchEvent ( contact );		
+//		this._scene.getEventDispatcher ( ).dispatchEvent ( contact );	
+		cc.eventManager.dispatchCustomEvent ( cc.PHYSICSCONTACT_EVENT_NAME, contact );
 	},
 	
 	collisionSeparateCallback:function ( contact )
@@ -730,7 +753,8 @@ cc.PhysicsWorld = cc.Class.extend
 
 		contact.setEventCode ( cc.PhysicsContact.EventCode.SEPERATE );
 		contact.setWorld ( this );
-//		this._scene.getEventDispatcher ( ).dispatchEvent ( contact );			
+//		this._scene.getEventDispatcher ( ).dispatchEvent ( contact );	
+		cc.eventManager.dispatchCustomEvent ( cc.PHYSICSCONTACT_EVENT_NAME, contact );
 	},
 
 	doAddBody:function ( body )

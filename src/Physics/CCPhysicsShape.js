@@ -697,7 +697,7 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 			for ( var i = 0; i < count; i++ ) 
 			{
 				verts [ i * 2 + 0 ] *= factorX;
-				verts [ i * 2 + 1 ] *= factorY;		
+				verts [ i * 2 + 1 ] *= factorY;	
 			}
 			
 			// convert hole to clockwise
@@ -722,10 +722,12 @@ cc.PhysicsShapePolygon = cc.PhysicsShape.extend
 				var		v1 = cp.v ( verts [ ( ( i + 1 ) % count ) * 2 + 0 ], verts [ ( ( i + 1 ) % count ) * 2 + 1 ] );
 				
 				var		n  = cp.v.normalize ( cp.v.perp ( cp.v.sub ( v0, v1 ) ) );
-				
+
 				planes [ i ].n = n;
-				planes [ i ].d = cp.v.dot ( n, v0 );
+				planes [ i ].d = cp.v.dot ( n, v0 );			
 			}
+			
+			// !Bug - Native doesn't change value : verts, planes
 		}
 		
 		cc.PhysicsShape.prototype.update.call ( this, delta );			

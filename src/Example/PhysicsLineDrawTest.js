@@ -48,8 +48,7 @@ msw.PhysicsLineDrawTest = msw.BaseDemo.extend
 		this._super ( );	
 
 		this._prePoint = cp.vzero;
-		this._curPoint = cp.vzero;
-		this._segment  = { p1: cp.vzero, p2: cp.vzero };
+		this._curPoint = cp.vzero;		
 		this._segments = new Array ( );
 		
 		this._canvas = new cc.DrawNode ( );
@@ -63,12 +62,12 @@ msw.PhysicsLineDrawTest = msw.BaseDemo.extend
 		shooter.setPosition ( cc.p ( 100, 100 ) );
 		this.addChildEx ( shooter );
 
-//		auto contactListener = EventListenerPhysicsContact::create();
-//		contactListener->onContactBegin = CC_CALLBACK_1(PhysicsLineDrawTestScene::onContactBegin, this);
-//		contactListener->onContactPreSolve = CC_CALLBACK_2(PhysicsLineDrawTestScene::onContactPreSolve, this);
-//		contactListener->onContactPostSolve = CC_CALLBACK_2(PhysicsLineDrawTestScene::onContactPostSolve, this);
-//		contactListener->onContactSeperate = CC_CALLBACK_1(PhysicsLineDrawTestScene::onContactSeperate, this);
-//		_eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
+		var 	contactListener = new cc.EventListenerPhysicsContact ( );
+		contactListener.onContactBegin 		= this.onContactBegin    .bind ( this );		
+		contactListener.onContactPreSolve 	= this.onContactPreSolve .bind ( this );
+		contactListener.onContactPostSolve 	= this.onContactPostSolve.bind ( this );
+		contactListener.onContactSeperate 	= this.onContactSeperate .bind ( this );
+		cc.eventManager.addCustomListener ( cc.PHYSICSCONTACT_EVENT_NAME, contactListener.onEvent.bind ( contactListener ) );
 
 		this.generateTarget ( );
 	},
@@ -109,28 +108,27 @@ msw.PhysicsLineDrawTest = msw.BaseDemo.extend
 		var 	posx = msw.rand ( ) % 600 + 200;
 		var 	posy = msw.rand ( ) % 400 + 200;
 		target.setPosition ( posx, posy );
-		this.addChild ( target );
+		this.addChildEx ( target );
 	},
 
 	onContactBegin:function ( contact )
 	{
-	/*
-		auto bodyA = contact.getShapeA()->getBody();
-		auto bodyB = contact.getShapeB()->getBody();
-		if (bodyA == _targetBody || bodyB == _targetBody)
+		var 	bodyA = contact.getShapeA ( ).getBody ( );
+		var 	bodyB = contact.getShapeB ( ).getBody ( );
+		if ( bodyA == this._targetBody || bodyB == this._targetBody )
 		{
-			auto target = (Sprite*)_targetBody->getNode();
-			auto alpha = (target->getOpacity() - 10) <= 0 ? 0 : (target->getOpacity() - 10);
-			target->setOpacity(alpha);
-			if (alpha == 0)
-			{
-				target->removeFromParentAndCleanup(true);
-				_targetBody = NULL;
+			var 	target = this._targetBody.getNode ( );
+			var 	alpha = ( target.getOpacity ( ) - 10 ) <= 0 ? 0 : ( target.getOpacity ( ) - 10 );
+			target.setOpacity ( alpha );
+			if ( alpha == 0 )
+			{				
+				target.removeFromParentEx ( true );
+				this._targetBody = null;
 
-				generateTarget();
+				this.generateTarget ( );
 			}
 		}
-*/
+
 		return true;
 	},
 
@@ -141,20 +139,21 @@ msw.PhysicsLineDrawTest = msw.BaseDemo.extend
 
 	onContactPostSolve:function ( contact, solve )
 	{
-	    
+
 	},
 
 	onContactSeperate:function ( contact )
 	{
-	    
+
 	},
 
 	onTouchBegan:function ( touch, event )
 	{
 		var 	location = touch.getLocation ( );
-	    this._prePoint = this._curPoint = location;
+
+		this._curPoint = this._prePoint = location;
 	    
-	    if ( this._shooterBody.getFirstShape ( ).containsPoint ( location ) )
+		if ( this._shooterBody.getFirstShape ( ).containsPoint ( location ) )
 	    {
 	        this.schedule ( this.fireBalls, 0.1 );
 	    }
@@ -163,8 +162,8 @@ msw.PhysicsLineDrawTest = msw.BaseDemo.extend
 
 	onTouchMoved:function ( touch, event )
 	{
-	    var 	location = touch.getLocation ( );
-	    this.drawPath ( location );
+		var 	location = touch.getLocation ( );
+		this.drawPath ( location );
 	},
 
 	onTouchEnded:function ( touch, event )
@@ -175,8 +174,9 @@ msw.PhysicsLineDrawTest = msw.BaseDemo.extend
 	    this.drawPath ( location );
 	    
 	    for ( var i in this._segments )
-	    {
+	    {	    	
 	    	var		seg = this._segments [ i ];
+	    	
 	        var		lineBody = cc.PhysicsBody.createEdgeSegment ( seg.p1, seg.p2 );
 	        var		edgeNode = new cc.Node ( );
 	        edgeNode.setPhysicsBody ( lineBody );
@@ -187,20 +187,25 @@ msw.PhysicsLineDrawTest = msw.BaseDemo.extend
 
 	drawPath:function ( point )
 	{
-	    this._curPoint = point;
+		this._canvas.clear ( );
+		
+	    this._curPoint = cp.v ( point.x, point.y );
 	    if ( cp.v.distsq ( point, this._prePoint ) > SEGMENT_UNIT_LENGTH * SEGMENT_UNIT_LENGTH )
-	    {
-	        this._segment.p1 = this._prePoint;
-	        this._segment.p2 = this._curPoint;
-	        this._segments.push ( this._segment );
+	    {  	
+	    	var		segment  = { p1: cp.vzero, p2: cp.vzero };
+	    	
+	    	segment.p1 = cp.v ( this._prePoint.x, this._prePoint.y );
+	    	segment.p2 = cp.v ( this._curPoint.x, this._curPoint.y );
+	        this._segments.push ( segment );
 	        
 	        this._prePoint = cp.v ( this._curPoint.x, this._curPoint.y );
 	    }
 	    
-	    for ( var i in this._segments )
+	    for ( var i = 0; i < this._segments.length; i++ )
 	    {
 	    	var		seg = this._segments [ i ];
-	        this._canvas.drawSegment ( seg.p1, seg.p2, 2, cc.color ( 255, 255, 0, 150 ) );
+	    	
+	    	this._canvas.drawSegment ( seg.p1, seg.p2, 2, cc.color ( 255, 255, 0, 150 ) );
 	    }	    
 	}
 });

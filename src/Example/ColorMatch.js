@@ -98,11 +98,11 @@ msw.ColorMatch = msw.BaseDemo.extend
 	},
 
 	removeBall:function ( ball )
-	{
+	{		
 		var		particle = new cc.ParticleSystem ( "res/ColorMatch/pop.plist" );
 		particle.setPosition ( ball.getPosition ( ) );
 		particle.setAutoRemoveOnFinish ( true );
-		this.addChild ( particle, 10 );
+		this.addChild ( particle, 10 );		
 
 		this.removeChildEx ( ball );
 		this._balls.splice ( this._balls.indexOf ( ball ), 1 );
@@ -227,9 +227,10 @@ msw.Ball = cc.Sprite.extend
 		this.linkCountLabel.setColor ( cc.color ( 255, 255, 0, 255 ) );
 		this.linkCountLabel.setPosition ( this._radius, this._radius );
 		this.addChild ( this.linkCountLabel );		
-			
-		this.setPhysicsBody ( ball_body );
+					
 		this.setScale ( this._radius / 62.0 );
+		this.setPhysicsBody ( ball_body );
+		
 		this.setLinkCount ( 1 );
 		this.setRoot ( this );
 	},

@@ -30,27 +30,50 @@
  *
  * ----------------------------------------------------------------------------------- */ 
 
+var		points = 
+[
+  	100, 100,
+  	200, 100,
+  	300, 200,
+  	400, 300,
+  	500, 500
+];
+		
+var		flip = false;
+
 msw.PRKitDemo = msw.BaseDemo.extend  
 ({
 	onEnter:function ( ) 
 	{
 		this._super ( );		
 
-		var		points = 
-		[
-		  	100, 100,
-		  	100, 100,
-		  	200, 100,
-		  	300, 200,
-		  	400, 300,
-		  	500, 500
-		];
+		var		verts = null;
+		
+		if ( flip )
+		{
+			verts = new Array ( );
+			
+			for ( var i = 0; i < points.length; i += 2 )
+			{
+				verts.push ( cp.v ( points [ i ], points [ i + 1 ] ) );
+			}
+			
+			cc.log ( "Vertex Array" );
+		}
+		else
+		{
+			verts = points;
+			
+			cc.log ( "Float Array" );
+		}
 		
 		var		texture = cc.textureCache.addImage ( "res/PRKitDemo/pattern1.png" );
 
 		var		filledPolygon = new cc.PRFilledPolygon ( );
-		filledPolygon.initWithPoints ( points, texture );
-		this.addChild ( filledPolygon ); 			
+		filledPolygon.initWithPoints ( verts, texture );
+		this.addChild ( filledPolygon );
+		
+		flip = !flip;
 	},
 
 	demo_info:function ( )

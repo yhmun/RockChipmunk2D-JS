@@ -48,7 +48,7 @@ cc.Triangulate =
 
 			for ( var p = n - 1, q = 0; q < n; p = q++ )
 			{
-				A += Contours [ p * 2 + 0 ] * Contours [ q * 2 + 1 ] - Contours [ q * 2 + 0 ] * Contours [ p * 2 + 1 ].y;
+				A += Contours [ p * 2 + 0 ] * Contours [ q * 2 + 1 ] - Contours [ q * 2 + 0 ] * Contours [ p * 2 + 1 ];
 			}
 
 			return A * 0.5;
@@ -73,7 +73,7 @@ cc.Triangulate =
 			aCROSSbp = ax * bpy - ay * bpx;
 			cCROSSap = cx * apy - cy * apx;
 			bCROSScp = bx * cpy - by * cpx;
-
+			
 			return ( ( aCROSSbp >= 0.0 ) && ( bCROSScp >= 0.0 ) && ( cCROSSap >= 0.0 ) );
 		},
 
@@ -91,7 +91,7 @@ cc.Triangulate =
 			Cx = Contours [ V[w] * 2 + 0 ];
 			Cy = Contours [ V[w] * 2 + 1 ];
 
-			if ( msw.EPSILON > ( ( ( Bx - Ax ) * ( Cy - Ay ) ) - ( ( By - Ay ) * ( Cx - Ax ) ) ) ) 
+			if ( cc.EPSILON > ( ( ( Bx - Ax ) * ( Cy - Ay ) ) - ( ( By - Ay ) * ( Cx - Ax ) ) ) ) 
 			{
 				return false;
 			}
@@ -103,9 +103,9 @@ cc.Triangulate =
 					continue;
 				}
 
-				Px = Contours [ V[p] * 2 + 0 ].x;
-				Py = Contours [ V[p] * 2 + 1 ].y;
-
+				Px = Contours [ V[p] * 2 + 0 ];
+				Py = Contours [ V[p] * 2 + 1 ];
+	
 				if ( cc.Triangulate.InsideTriangle ( Ax, Ay, Bx, By, Cx, Cy, Px, Py ) )
 				{
 					return false;
@@ -122,12 +122,12 @@ cc.Triangulate =
 			// allocate and initialize list of Vertices in polygon 	
 			var		n = Contours.length / 2;
 
+			var		V = new Array ( n );
+
 			if ( n < 3 ) 
 			{
 				return false;
 			}
-
-			var		V = [];
 
 			// we want a counter-clockwise polygon in V 	
 			if ( 0.0 < cc.Triangulate.Area ( Contours ) )
@@ -177,11 +177,11 @@ cc.Triangulate =
 				{
 					w = 0;     // next     
 				}
-
+	
 				if ( cc.Triangulate.Snip ( Contours, u, v, w, nv, V ) )
 				{
 					var		a, b, c, s, t;
-
+		
 					// true names of the vertices 
 					a = V[u]; b = V[v]; c = V[w];
 

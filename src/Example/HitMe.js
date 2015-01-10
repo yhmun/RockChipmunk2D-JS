@@ -35,7 +35,7 @@ msw.HitMe = msw.BaseDemo.extend
 	onEnter:function ( ) 
 	{
 		this._super ( );	
-		
+
 		this._bgColorLayer = new cc.LayerColor ( cc.color ( 0, 0, 0, 128 ) );
 		this.addChild ( this._bgColorLayer );
 		
@@ -44,7 +44,8 @@ msw.HitMe = msw.BaseDemo.extend
 		this.setPhysicsForHitItem ( );	
 		
 		var 	contactListener = new cc.EventListenerPhysicsContact ( );
-		contactListener.onContactBegin = this.onContactBegin.bind ( this );		
+		contactListener.onContactBegin 	  = this.onContactBegin   .bind ( this );		
+		contactListener.onContactPreSolve = this.onContactPreSolve.bind ( this );
 		cc.eventManager.addCustomListener ( cc.PHYSICSCONTACT_EVENT_NAME, contactListener.onEvent.bind ( contactListener ) );	
 	},
 
@@ -84,11 +85,16 @@ msw.HitMe = msw.BaseDemo.extend
 	    this.addChildEx ( this._hit );
 	},
 	
-	onContactBegin:function ( contact, target )
+	onContactBegin:function ( contact )
 	{
 		var 	randomColor = cc.color ( cc.random0To1 ( ) * 255, cc.random0To1 ( ) * 255, cc.random0To1 ( ) * 255 );
 		this._bgColorLayer.setColor ( randomColor );
 	    return true;
+	},
+	
+	onContactPreSolve:function ( contact, solve ) 
+	{
+		return true;
 	},
 	
 	hitMeFire:function (  )

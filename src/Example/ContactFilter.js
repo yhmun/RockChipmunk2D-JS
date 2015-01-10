@@ -88,8 +88,7 @@ msw.ContactFilter = msw.BaseDemo.extend
 	
 	onContactBegin:function ( contact )
 	{
-		cc.log ( "ball1_body ball2_body contact begin" );
-		
+		cc.log ( "ball1_body ball2_body contact begin" );		
 		return true;
 	},
 

@@ -81,13 +81,13 @@ cc.PhysicsContact = cc.Class.extend
 	{
 		return this._shapeB; 
 	},
-	
+
 	/** get contact data */
 	getContactData:function ( ) 
 	{
 		return this._contactData; 
 	},
-	
+
 	/** get previous contact data */
 	getPreContactData:function ( ) 
 	{
@@ -158,11 +158,12 @@ cc.PhysicsContact = cc.Class.extend
 			return;
 		}
 
-		var 	arb = this._contactInfo;
-
+		var 	arb = this._contactInfo;		
+		
 		this._preContactData = this._contactData;
 		this._contactData = new cc.PhysicsContactData ( );
-		this._contactData.count = arb.getCount ( );
+		this._contactData.count = cc.sys.isNative ? arb.getCount ( ) : arb.contacts.length;	
+		
 		for ( var i = 0; i < this._contactData.count && i < cc.PhysicsContactData.POINT_MAX; ++i )
 		{
 			this._contactData.points [ i ] = arb.getPoint ( i );

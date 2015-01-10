@@ -93,14 +93,14 @@ msw.RollingBall = msw.BaseDemo.extend
 				this._verts_cai.push ( cp.v ( verts_cai [ i ], verts_cai [ i + 1 ] ) );
 			}			
 			
-			cc.log ( "Float Array" );
+			cc.log ( "Vertex Array" );
 		}
 		else
 		{
 			this._verts_egg = verts_egg;
 			this._verts_cai = verts_cai;
 			
-			cc.log ( "Vertex Array" );
+			cc.log ( "Float Array" );
 		}
 		
 		flip = !flip;

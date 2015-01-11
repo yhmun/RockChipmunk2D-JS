@@ -57,4 +57,5 @@ msw.RESOURCES =
 	 "res/SimplePlatformer/blocks.png",
 	 "res/SimplePlatformer/scroller.tmx",
 	 "res/HitMe/hit_me.png",
+	 "res/FruitCutNinja/streak.png"
 ];

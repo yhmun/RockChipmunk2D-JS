@@ -41,7 +41,20 @@ msw.FruitCutNinja = msw.BaseDemo.extend
 		this._startPoint 	 = cp.vzero;
 		this._endPoint	 	 = cp.vzero;
 		this._startPos  	 = cp.vzero;		// Because Touch Bug
-
+		this._blades		 = new Array ( );
+		
+		var		texture = cc.textureCache.addImage ( "res/FruitCutNinja/streak.png" );
+		
+	    for ( var i = 0; i < 3; i++ )
+	    {
+	        var	 	blade = new cc.Blade ( 50 );
+	        blade.setAutoDim ( false );
+	        blade.setTexture ( texture );
+	        
+	        this.addChild ( blade, 100 );
+	        this._blades.push ( blade );
+	    }	    
+	    
 		var 	box = new cc.Node ( );
 		var 	points = [ cp.v ( -100, -100 ), cp.v ( -100, 100 ), cp.v ( 100, 100 ), cp.v ( 100, -100 ) ];
 		box.setPhysicsBody ( cc.PhysicsBody.createPolygon ( points ) );
@@ -130,17 +143,17 @@ msw.FruitCutNinja = msw.BaseDemo.extend
 		this._endPoint   = location;		
 		this._startPos   = location;
 		
-		/*
-        for (Blade* blade : _blades)
+        for ( var i in this._blades )
         {
-            if (blade->getPath().size() == 0)
+        	var		blade = this._blades [ i ];
+        	
+            if ( blade.getPath ( ).length == 0 )
             {
-                _blade = blade;
-                _blade->push(location);
+                this._blade = blade;
+                this._blade.push ( location );
                 break;
             }
         }
-        */
 		
 		return true;
 	},
@@ -155,12 +168,12 @@ msw.FruitCutNinja = msw.BaseDemo.extend
 			this._startPoint = this._endPoint;
 		}
 
-		//_blade->push(location);
+		this._blade.push ( location );
 	},
 	
 	onTouchEnded:function ( touch, event )
 	{
-		//_blade->setDim(true);
+		this._blade.setDim ( true );
 		this._world.rayCast ( this.slice.bind ( this ), this._startPos, touch.getLocation ( ), null );
 	}	
 });

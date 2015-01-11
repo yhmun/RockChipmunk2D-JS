@@ -166,9 +166,8 @@ msw.FruitCutNinja = msw.BaseDemo.extend
 		if ( cp.v.dist ( this._startPoint, this._endPoint ) > 25 )
 		{
 			this._startPoint = this._endPoint;
-		}
-
-		this._blade.push ( location );
+			this._blade.push ( location );
+		}		
 	},
 	
 	onTouchEnded:function ( touch, event )

@@ -4,13 +4,9 @@ RockChipmunk2D-JS
 - Version 0.1 ( Currently working source code )
 
 # Demo
-- [Demo](http://msw9.com/contents/RockChipmunk2D/)
-- [Full Screen](http://msw9.com/contents/RockChipmunk2D/main.html)
-- [Homepage : http://msw9.com](http://msw9.com)
-- [Blog : http://blog.msw9.com](http://blog.msw9.com)
-
-# Original 
-- https://github.com/MSW9/RockChipmunk2D
+- [Demo](http://mcodegeeks.com/wp-content/uploads/contents/RockChipmunk2D/)
+- [Full Screen](http://mcodegeeks.com/wp-content/uploads/contents/RockChipmunk2D/main.html)
+- [Homepage : http://msw9.com](http://mcodegeeks.com)
 
 # Usage
 - Use Cocos2D-IDE and Import this project root folder.

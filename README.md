@@ -6,7 +6,7 @@ RockChipmunk2D-JS
 # Demo
 - [Demo](http://mcodegeeks.com/wp-content/uploads/contents/RockChipmunk2D/)
 - [Full Screen](http://mcodegeeks.com/wp-content/uploads/contents/RockChipmunk2D/main.html)
-- [Homepage : http://msw9.com](http://mcodegeeks.com)
+- [Homepage : http://mcodegeeks.com](http://mcodegeeks.com)
 
 # Usage
 - Use Cocos2D-IDE and Import this project root folder.
